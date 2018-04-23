@@ -1,0 +1,22 @@
+body {
+  padding: 50px;
+  font-family: sans-serif;
+}
+
+a {
+  color: #00B7FF;
+}
+
+.wrap {
+  max-width: 500px;
+}
+
+h2:first-letter {
+  font-size: 1.7em;
+}
+
+input {
+  margin: 10px 20px;
+  max-width: 200%;
+}
+

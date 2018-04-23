@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Make an ICE card</title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+  </head>
+  <body>
+    <h1>Make an ICE card</h1>
+    <p>Fill out as much as you want</p>
+    <div class="wrap">
+      <form action="" method="post">
+        <%
+          // YPACE
+          var names = ["You",
+              "Primary",
+              "Alternative",
+              "Contingency",
+              "Emergency",
+          ];
+          for (var i=0; i<names.length; i++) {
+        %>
+          <h2><%- names[i] %></h2>
+          <input type="text" placeholder="Name" />
+          <input type="email" placeholder="Email" />
+          <input type="text" placeholder="Phone" />
+          <input type="text" placeholder="Address" />
+        <% } %>
+        <input type="submit" value="Done" />
+      </form>
+    </div>
+  </body>
+</html>

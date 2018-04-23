@@ -1,0 +1,30 @@
+<% var you = contacts[0] %>
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%- you.name %>'s emergency info</title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+  </head>
+  <body>
+    <h1><%- you.name %>'s emergency info</h1>
+    <div class="wrap">
+      <%
+        var names = [you.name,
+            "Primary",
+            "Alternative",
+            "Contingency",
+            "Emergency",
+        ];
+        for (var i=0; i<contacts.length; i++) {
+      %>
+        <h2><%- names[i] %></h2>
+        <p><%- contacts[i].name %></p>
+        <p><%- contacts[i].email %></p>
+        <p><%- contacts[i].phone %></p>
+        <p><%- contacts[i].address %></p>
+      <% } %>
+      <hr />
+      <p>Stay safe. <a href="/">Make your own</a>.</p>
+    </div>
+  </body>
+</html>
