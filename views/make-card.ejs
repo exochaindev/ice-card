@@ -11,19 +11,19 @@
       <form action="" method="post">
         <%
           // YPACE
-          var names = ["You",
-              "Primary",
-              "Alternative",
-              "Contingency",
-              "Emergency",
+          var names = ["you",
+              "primary",
+              "alternative",
+              "contingency",
+              "emergency",
           ];
           for (var i=0; i<names.length; i++) {
         %>
-          <h2><%- names[i] %></h2>
-          <input type="text" placeholder="Name" />
-          <input type="email" placeholder="Email" />
-          <input type="text" placeholder="Phone" />
-          <input type="text" placeholder="Address" />
+          <h2><%- names[i][0].toUpperCase() + names[i].substr(1) %></h2>
+          <input type="text" placeholder="Name" name="<%- names[i] %>-name" />
+          <input type="email" placeholder="Email" name="<%- names[i] %>-email" />
+          <input type="text" placeholder="Phone" name="<%- names[i] %>-phone" />
+          <input type="text" placeholder="Address" name="<%- names[i] %>-address" />
         <% } %>
         <input type="submit" value="Done" />
       </form>
