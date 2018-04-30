@@ -15,14 +15,5 @@ router.get('/queryAll', function(req, res, next) {
   });
 });
 
-router.get('/fabcar/queryAll', function(req, res, next) {
-  model.getCars().then((cars) => {
-    let pretty = JSON.stringify(JSON.parse(cars), null, 4);
-    res.render('debug', { debugString: pretty });
-  }, (err) => {
-    res.render('debug', { debugString: "Typical, the debug failed:\n" + err });
-  });
-})
-
 module.exports = router;
 
