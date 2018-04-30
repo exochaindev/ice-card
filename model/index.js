@@ -38,7 +38,7 @@ function addCard(data) {
 
 function getCard(id) {
   return query.getCard(id).then((card) => {
-    return card;
+    return JSON.parse(card);
   }, (err) => {
     throw err;
   });
