@@ -1,3 +1,9 @@
+# --- Fabric stuff ---
+
+hfc-key-store
+
+# --- Node.js stuff ---
+
 # Logs
 logs
 *.log
