@@ -1,4 +1,4 @@
-<% var you = contacts[0] %>
+<% var you = contacts.you %>
 <!DOCTYPE html>
 <html>
   <head>
@@ -9,19 +9,20 @@
     <h1><%- you.name %>'s emergency info</h1>
     <div class="wrap">
       <%
-        var names = [you.name,
-            "Primary",
-            "Alternative",
-            "Contingency",
-            "Emergency",
+        var names = ["you",
+            "primary",
+            "alternative",
+            "contingency",
+            "emergency",
         ];
-        for (var i=0; i<contacts.length; i++) {
+        for (var i=0; i<names.length; i++) {
+          let key = names[i];
       %>
-        <h2><%- names[i] %></h2>
-        <p><%- contacts[i].name %></p>
-        <p><%- contacts[i].email %></p>
-        <p><%- contacts[i].phone %></p>
-        <p><%- contacts[i].address %></p>
+        <h2><%- key[0].toUpperCase() + key.substr(1) %></h2>
+        <p><%- contacts[key].name %></p>
+        <p><%- contacts[key].email %></p>
+        <p><%- contacts[key].phone %></p>
+        <p><%- contacts[key].address %></p>
       <% } %>
       <hr />
       <p>Stay safe. <a href="/">Make your own</a>.</p>

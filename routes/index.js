@@ -11,7 +11,8 @@ router.get('/', function(req, res, next) {
 
 router.post('/', function(req, res, next) {
   // Make the card, store it on blockchain, etc.
-  model.addCard(req.body).then((id) => {
+  let card = model.parseCard(req.body);
+  model.addCard(card).then((id) => {
     res.redirect('/' + id);
   });
 });

@@ -4,6 +4,24 @@ const idGen = require('human-readable-ids').hri;
 const query = require('./fabcar/query-lib.js');
 const invoke = require('./fabcar/invoke.js');
 
+// Take the output from make-card and turn it into a structured card object
+// This is unfortunately necessary to have nice structured data
+// because HTML forms don't support structured input
+function parseCard(form) {
+  let card = {};
+  Object.keys(form).forEach(function(key) {
+    let parts = key.split("-");
+    let truekey = parts[0];
+    let subkey = parts[1];
+    let value = form[key];
+    if (!card[truekey]) {
+      card[truekey] = {};
+    }
+    card[truekey][subkey] = value;
+  });
+  return card;
+}
+
 function addCard(data) {
   // Reconstruct this nice pretty javascript object
   // Into an ugly fabric array (names begone)
@@ -31,6 +49,7 @@ function getId() {
 }
 
 module.exports.getCars = query.getCars;
+module.exports.parseCard = parseCard;
 module.exports.addCard = addCard;
 module.exports.getCard = getCard;
 
