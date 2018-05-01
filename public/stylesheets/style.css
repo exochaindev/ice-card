@@ -7,16 +7,87 @@ a {
   color: #00B7FF;
 }
 
-.wrap {
+.card {
   max-width: 500px;
 }
 
-h2:first-letter {
+.card h2:first-letter {
   font-size: 1.7em;
 }
 
 input {
   margin: 10px 20px;
   max-width: 200%;
+}
+
+.name {
+  font-size: 1.2em;
+}
+
+.clear {
+  clear: both;
+}
+
+.print-card {
+  width: 3.5in;
+  height: 5in;
+  border: 1px dotted black;
+  overflow: hidden;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+}
+.print-card, .print-card * {
+  margin: 0;
+  padding: 0;
+}
+.front .col-left {
+  float: left;
+  width: 45%;
+}
+.front .col-right {
+  float: right;
+  width: 55%;
+  height: 170px;
+}
+.front .col-right img {
+  height: 100%;
+  float: right;
+}
+.front {
+  height: 2.5in;
+  padding: 10px;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+.front h2 {
+  font-size: 20px;
+}
+.back {
+  width: 3.5in;
+  height: 2.5in;
+  padding: 5px;
+  box-sizing: border-box;
+  column-count: 2;
+  border-top: 1px dashed black;
+  overflow: hidden;
+}
+.back h2 {
+  font-size: 14px;
+}
+.back h2.name {
+  font-size: 15px;
+}
+
+.back p {
+  font-size: 12px;
+  overflow: wrap;
+}
+
+#print-button-container {
+  /* Only seen if javascript is enabled */
+  display: none;
+}
+#print-button {
+  font-size: 1.7em;
 }
 

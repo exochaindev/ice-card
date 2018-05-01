@@ -1,0 +1,63 @@
+<% var you = contacts.you %>
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%- you.name %>'s emergency info</title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+    <script>
+      function init() {
+        var printButton = document.getElementById('print-button');
+        printButton.onclick = function() {
+          window.print();
+        };
+        document.getElementById("print-button-container").style.display = "inherit";
+      }
+      window.onload = init;
+    </script>
+  </head>
+  <body>
+    <p>
+      <h1>Print your card</h1>
+    </p>
+    <p id="print-button-container">
+      <a id="print-button" href="javascript:void(0);">Print page</a>
+    </p>
+    <div class="print-card">
+      <div class="front">
+        <h2><%- you.name %>'s emergency info</h2>
+        <div class="col-left">
+          <p>Scan the QR code or enter the URL:</p>
+          <p><%- url %></p>
+        </div>
+        <div class="col-right">
+          <img src="<%- qrUrl %>" alt="qr-code" />
+        </div>
+        <div class="clear"></div>
+      </div>
+      <div class="back">
+        <%
+          var names = ["you",
+              "primary",
+              "alternative",
+              "contingency",
+              "emergency",
+          ];
+          for (var i=0; i<names.length; i++) {
+            let key = names[i];
+        %>
+          <% if (key == "you") { %>
+            <h2 class="name"><%- contacts[key].name %></h2>
+          <% } else { %>
+            <h2><%- key[0].toUpperCase() + key.substr(1) %></h2>
+            <p><%- contacts[key].name %></p>
+          <% } %>
+          <p><%- contacts[key].email %></p>
+          <p><%- contacts[key].phone %></p>
+          <p><%- contacts[key].address %></p>
+        <% } %>
+      </div>
+    </div>
+    <hr />
+    <p>Print this page and cut it out.</p>
+  </body>
+</html>
