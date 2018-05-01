@@ -46,9 +46,14 @@ function getCard(id) {
 function getId() {
   return idGen.random();
 }
+// In the moment, punctuation is hard to describe, make room for errors
+function sanitizeId(id) {
+  return id.replace(/[_ +'"]/g, '-');
+}
 
 module.exports.queryAll = fabric.queryAll;
 module.exports.parseCard = parseCard;
 module.exports.addCard = addCard;
 module.exports.getCard = getCard;
+module.exports.sanitizeId = sanitizeId;
 

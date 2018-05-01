@@ -18,8 +18,8 @@ router.post('/', function(req, res, next) {
 });
 
 router.get('/:uid', function(req, res, next) {
-  // Get the card from the model etc
-  model.getCard(req.params.uid).then((contacts) => {
+  let uid = model.sanitizeId(req.params.uid);
+  model.getCard(uid).then((contacts) => {
     res.render('view-card', { contacts: contacts });
   }, (err) => {
     res.render('debug', { debugString: "Error:\n" + err });
