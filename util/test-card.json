@@ -1,0 +1,32 @@
+{
+  "alternative": {
+    "address": "13 Great Street, Great NW",
+    "email": "email3@example.com",
+    "name": "Alternative Contacti",
+    "phone": "+1332860383910"
+  },
+  "contingency": {
+    "address": "19 Big St.",
+    "email": "wackylongemailfriend@example.com",
+    "name": "Contigency Contact Longname",
+    "phone": "0349184"
+  },
+  "emergency": {
+    "address": "Everywhere",
+    "email": "sh@sh.sh",
+    "name": "Shrt",
+    "phone": "145"
+  },
+  "primary": {
+    "address": "83 Cool Street, Bigtown RN",
+    "email": "email2@example.com",
+    "name": "Primary Contact",
+    "phone": "0349184"
+  },
+  "you": {
+    "address": "88 Westside Street, Town RN",
+    "email": "email@example.com",
+    "name": "Fake Data",
+    "phone": "2860383910"
+  }
+}
