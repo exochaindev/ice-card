@@ -4,6 +4,7 @@ const idGen = require('human-readable-ids').hri;
 // TODO: I installed gfycat-style-urls
 // I might prefer that one, actually
 const fabric = require('./fabric.js');
+const canonicalDomain = 'localhost:3000'
 
 // Take the output from make-card and turn it into a structured card object
 // This is unfortunately necessary to have nice structured data
@@ -43,6 +44,23 @@ function getCard(id) {
   });
 }
 
+// If absolute is true, return ice.card/:id or whatever
+// Otherwise, return /:id or whatever
+function getCardUrl(id, absolute = false) {
+  let rv = '';
+  if (absolute) {
+    rv += canonicalDomain;
+  }
+  rv += '/' + id
+  return rv;
+}
+function getQrUrl(id, absolute = false) {
+  return getCardUrl(id, absolute) + '/qr.svg';
+}
+function getPrintUrl(id, absolute = false) {
+  return getCardUrl(id, absolute) + '/print'
+}
+
 function getId() {
   return idGen.random();
 }
@@ -56,4 +74,7 @@ module.exports.parseCard = parseCard;
 module.exports.addCard = addCard;
 module.exports.getCard = getCard;
 module.exports.sanitizeId = sanitizeId;
+module.exports.getCardUrl = getCardUrl;
+module.exports.getQrUrl = getQrUrl;
+module.exports.getPrintUrl = getPrintUrl;
 

@@ -5,8 +5,6 @@ var router = express.Router();
 const model = require('../model/index.js');
 const qr = require('qr-image');
 
-var canonicalDomain = 'localhost:3000';
-
 /* GET home page. */
 router.get('/', function(req, res, next) {
   res.render('make-card', {  });
@@ -16,7 +14,7 @@ router.post('/', function(req, res, next) {
   // Make the card, store it on blockchain, etc.
   let card = model.parseCard(req.body);
   model.addCard(card).then((id) => {
-    res.redirect('/' + id + '/print');
+    res.redirect(model.getPrintUrl(id));
   });
 });
 
@@ -31,8 +29,9 @@ router.get('/:uid', function(req, res, next) {
 
 router.get('/:uid/print', function(req, res, next) {
   let uid = model.sanitizeId(req.params.uid);
-  let url = canonicalDomain + '/' + uid;
-  let qrUrl = '/' + uid + '/qr.svg';
+  // On printed card, urls should be absolute url
+  let url = model.getCardUrl(uid, true);
+  let qrUrl = model.getQrUrl(uid);
   model.getCard(uid).then((contacts) => {
     res.render('print-card', { contacts: contacts, url: url, qrUrl: qrUrl });
   }, (err) => {
@@ -42,7 +41,7 @@ router.get('/:uid/print', function(req, res, next) {
 
 router.get('/:uid/qr.:ext', function(req, res, next) {
   let uid = model.sanitizeId(req.params.uid);
-  let url = canonicalDomain + '/' + uid;
+  let url = model.getCardUrl(uid);
   let qrSvg = qr.image(url, {
     type: req.params.ext,
     size: 6,
