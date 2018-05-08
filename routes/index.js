@@ -25,7 +25,7 @@ router.get('/:uid', function(req, res, next) {
   model.getCard(uid).then((contacts) => {
     res.render('view-card', { contacts: contacts });
   }, (err) => {
-    res.render('debug', { debugString: "Error:\n" + err });
+    res.render('debug', { debugString: 'Error:\n' + err });
   });
 });
 
@@ -36,7 +36,7 @@ router.get('/:uid/print', function(req, res, next) {
   model.getCard(uid).then((contacts) => {
     res.render('print-card', { contacts: contacts, url: url, qrUrl: qrUrl });
   }, (err) => {
-    res.render('debug', { debugString: "Error:\n" + err });
+    res.render('debug', { debugString: 'Error:\n' + err });
   });
 });
 

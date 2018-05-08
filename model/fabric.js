@@ -78,7 +78,7 @@ async function query(func, args) {
   // query_responses could have more than one results if there multiple peers were used as targets
   if (query_responses && query_responses.length == 1) {
     if (query_responses[0] instanceof Error) {
-      throw new Error("error from query = ", query_responses[0]);
+      throw new Error('error from query = ', query_responses[0]);
     } else {
       return query_responses[0].toString();
     }
@@ -99,7 +99,7 @@ async function addCard(cardInfo) {
   let user = await getUser();
   // get a transaction id object based on the current user assigned to fabric client
   tx_id = fabric_client.newTransactionID();
-  console.log("Assigning transaction_id: ", tx_id._transaction_id);
+  console.log('Assigning transaction_id: ', tx_id._transaction_id);
 
   // createCar chaincode function - requires 5 args, ex: args: ['CAR12', 'Honda', 'Accord', 'Black', 'Tom'],
   // changeCarOwner chaincode function - requires 2 args , ex: args: ['CAR10', 'Dave'],

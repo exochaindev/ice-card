@@ -5,13 +5,15 @@ const idGen = require('human-readable-ids').hri;
 // I might prefer that one, actually
 const fabric = require('./fabric.js');
 
+var canonicalDomain = 'localhost:3000';
+
 // Take the output from make-card and turn it into a structured card object
 // This is unfortunately necessary to have nice structured data
 // because HTML forms don't support structured input
 function parseCard(form) {
   let card = {};
   Object.keys(form).forEach(function(key) {
-    let parts = key.split("-");
+    let parts = key.split('-');
     let truekey = parts[0];
     let subkey = parts[1];
     let value = form[key];
@@ -31,7 +33,7 @@ function addCard(data) {
   return fabric.addCard(fabricData).then((response) => {
     return fabricData[0]; // Need that ID
   }, (err) => {
-    throw "Could not add card."
+    throw 'Could not add card.'
   });
 }
 
