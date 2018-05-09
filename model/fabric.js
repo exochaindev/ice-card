@@ -89,13 +89,13 @@ async function query(func, args) {
 }
 
 function queryAll() {
-  return query('queryAllCars');
+  return query('queryAll');
 }
 function getCard(id) {
   return query('getCard', [id])
 }
 
-async function addCard(cardInfo) {
+async function sendTransaction(func, args) {
   let user = await getUser();
   // get a transaction id object based on the current user assigned to fabric client
   tx_id = fabric_client.newTransactionID();
@@ -107,8 +107,8 @@ async function addCard(cardInfo) {
   var request = {
     //targets: let default to the peer assigned to the client
     chaincodeId: 'fabcar',
-    fcn: 'addCard',
-    args: cardInfo,
+    fcn: func,
+    args: args,
     chainId: 'mychannel',
     txId: tx_id
   };
@@ -204,7 +204,16 @@ async function addCard(cardInfo) {
   }
 }
 
+async function addCard(cardInfo) {
+  return sendTransaction('addCard', cardInfo);
+}
+
+async function recordAccess(accessInfo) {
+  return sendTransaction('recordAccess', [accessInfo]);
+}
+
 module.exports.queryAll = queryAll;
 module.exports.getCard = getCard;
 module.exports.addCard = addCard;
+module.exports.recordAccess = recordAccess;
 

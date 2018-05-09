@@ -19,6 +19,7 @@ router.post('/', function(req, res, next) {
 });
 
 router.get('/:uid', function(req, res, next) {
+  model.recordAccess(req);
   let uid = model.sanitizeId(req.params.uid);
   model.getCard(uid).then((contacts) => {
     res.render('view-card', { contacts: contacts });

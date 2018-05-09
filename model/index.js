@@ -32,8 +32,18 @@ function addCard(data) {
   return fabric.addCard(fabricData).then((response) => {
     return fabricData[0]; // Need that ID
   }, (err) => {
-    throw "Could not add card."
+    throw 'Could not add card: ' + err
   });
+}
+
+async function recordAccess(req) {
+  let data = {
+    'ip': req.ip,
+    'ua': req.get('User-Agent'),
+    'url': req.originalUrl,
+  };
+  let accessData = JSON.stringify(data);
+  await fabric.recordAccess(accessData);
 }
 
 function getCard(id) {
@@ -69,12 +79,17 @@ function sanitizeId(id) {
   return id.replace(/[_ +'"]/g, '-');
 }
 
-module.exports.queryAll = fabric.queryAll;
+// Cards
 module.exports.parseCard = parseCard;
-module.exports.addCard = addCard;
 module.exports.getCard = getCard;
+module.exports.addCard = addCard;
+
+// Urls
 module.exports.sanitizeId = sanitizeId;
 module.exports.getCardUrl = getCardUrl;
 module.exports.getQrUrl = getQrUrl;
 module.exports.getPrintUrl = getPrintUrl;
+
+module.exports.queryAll = fabric.queryAll;
+module.exports.recordAccess = recordAccess;
 
