@@ -2,8 +2,8 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title><%- you.name %>'s emergency info</title>
-    <link rel='stylesheet' href='/stylesheets/style.css' />
+    <% title = you.name + "'s emergency info" %>
+    <% include head.ejs %>
   </head>
   <body>
     <h1><%- you.name %>'s emergency info</h1>

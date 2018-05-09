@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Make an ICE card</title>
-    <link rel='stylesheet' href='/stylesheets/style.css' />
+    <% title = 'Make an ICE card' %>
+    <% include head.ejs %>
   </head>
   <body>
     <h1>Make an ICE card</h1>
@@ -25,7 +25,8 @@
           <input type="text" placeholder="Phone" name="<%- names[i] %>-phone" />
           <input type="text" placeholder="Address" name="<%- names[i] %>-address" />
         <% } %>
-        <input type="submit" value="Done" />
+        <hr />
+        <input type="submit" value="Print it" />
       </form>
     </div>
   </body>

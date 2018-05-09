@@ -16,8 +16,23 @@ a {
 }
 
 input {
-  margin: 10px 20px;
-  max-width: 200%;
+  box-sizing: border-box;
+  padding: 10px;
+  /* Doesn't support calc */
+  width: 45%;
+  margin: 5px 2%;
+  /* Supports calc */
+  width: calc(45% - 40px);
+  margin: 10px calc(20px);
+}
+
+input[type="submit"] {
+  /* Doesn't support calc */
+  width: 95%;
+  margin: 5px 2%;
+  /* Supports calc */
+  width: calc(95% - 20px);
+  margin: 5px calc(10px);
 }
 
 .name {
@@ -89,5 +104,19 @@ input {
 }
 #print-button {
   font-size: 1.7em;
+}
+
+@media screen and (max-width: 500px) {
+  body {
+    padding: 10px;
+  }
+  input {
+    /* Doesn't support calc */
+    width: 95%;
+    margin: 5px 2%;
+    /* Supports calc */
+    width: calc(95% - 20px);
+    margin: 5px calc(10px);
+  }
 }
 
