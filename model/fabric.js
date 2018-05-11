@@ -13,6 +13,8 @@ var path = require('path');
 var util = require('util');
 var os = require('os');
 
+var chaincodeId = 'ice-card';
+
 //
 var fabric_client = new Fabric_Client();
 
@@ -67,7 +69,7 @@ async function query(func, args) {
 
   const request = {
     //targets : --- letting this default to the peers assigned to the channel
-    chaincodeId: 'fabcar',
+    chaincodeId: chaincodeId,
     fcn: func,
     args: args
   };
@@ -106,7 +108,7 @@ async function sendTransaction(func, args) {
   // must send the proposal to endorsing peers
   var request = {
     //targets: let default to the peer assigned to the client
-    chaincodeId: 'fabcar',
+    chaincodeId: chaincodeId,
     fcn: func,
     args: args,
     chainId: 'mychannel',
