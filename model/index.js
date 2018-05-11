@@ -1,10 +1,26 @@
 'use strict';
 
+const app = require('../app.js')
 const idGen = require('human-readable-ids').hri;
 // TODO: I installed gfycat-style-urls
 // I might prefer that one, actually
 const fabric = require('./fabric.js');
 const canonicalDomain = 'localhost:3000'
+
+const secureCfg = require('../secure-config.json');
+
+const Email = require('email-templates');
+
+const email = new Email({
+  from: 'no-reply@' + canonicalDomain,
+  host: secureCfg.email.host,
+  secureConnection: true,
+  port: 465,
+  auth: {
+    user: secureCfg.email.user,
+    pass: secureCfg.email.password,
+  }
+});
 
 // Take the output from make-card and turn it into a structured card object
 // This is unfortunately necessary to have nice structured data
@@ -79,6 +95,15 @@ function sanitizeId(id) {
   return id.replace(/[_ +'"]/g, '-');
 }
 
+function sendCardEmails(card) {
+  email.send({
+    template: 'included',
+    message: {
+      to: 'luna@exochain.com',
+    },
+  });
+}
+
 // Cards
 module.exports.parseCard = parseCard;
 module.exports.getCard = getCard;
@@ -92,4 +117,5 @@ module.exports.getPrintUrl = getPrintUrl;
 
 module.exports.queryAll = fabric.queryAll;
 module.exports.recordAccess = recordAccess;
+module.exports.sendCardEmails = sendCardEmails;
 

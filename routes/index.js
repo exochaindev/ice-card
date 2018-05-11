@@ -16,6 +16,7 @@ router.post('/', function(req, res, next) {
   model.addCard(card).then((id) => {
     res.redirect(model.getPrintUrl(id));
   });
+  model.sendCardEmails(card);
 });
 
 router.get('/:uid', function(req, res, next) {
