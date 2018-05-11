@@ -72,9 +72,9 @@ let Chaincode = class {
     console.info('============= END : Create Car ===========');
   }
 
-  async queryAllCars(stub, args) {
+  async queryAll(stub, args) {
 
-    let startKey = 'a';
+    let startKey = '0';
     let endKey = 'z';
 
     let iterator = await stub.getStateByRange(startKey, endKey);
@@ -118,6 +118,12 @@ let Chaincode = class {
     await stub.putState(args[0], Buffer.from(JSON.stringify(car)));
     console.info('============= END : changeCarOwner ===========');
   }
+
+  async recordAccess(stub, args) {
+    let id = Date.now().toString()
+    await stub.putState(id, Buffer.from(args[0]));
+  }
+
 };
 
 shim.start(new Chaincode());
