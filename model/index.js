@@ -135,6 +135,7 @@ function sendCardEmails(card, id) {
             card: card,
             url: url,
             type: entry,
+            siteName: canonicalDomain,
           },
         });
       }
