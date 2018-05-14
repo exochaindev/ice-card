@@ -6,20 +6,32 @@ const idGen = require('human-readable-ids').hri;
 // I might prefer that one, actually
 const fabric = require('./fabric.js');
 const canonicalDomain = 'localhost:3000'
+const protocol = 'http://'
 
 const secureCfg = require('../secure-config.json');
 
 const Email = require('email-templates');
 
 const email = new Email({
-  from: 'no-reply@' + canonicalDomain,
-  host: secureCfg.email.host,
-  secureConnection: true,
-  port: 465,
-  auth: {
-    user: secureCfg.email.user,
-    pass: secureCfg.email.password,
-  }
+  message: {
+    from: 'no-reply@' + canonicalDomain,
+  },
+  transport: {
+    host: secureCfg.email.host,
+    secureConnection: true,
+    port: 465,
+    auth: {
+      user: secureCfg.email.user,
+      pass: secureCfg.email.password,
+    },
+  },
+  views: {
+    options: {
+      extension: 'ejs',
+    },
+    root: './views/emails/',
+  },
+  send: true,
 });
 
 // Take the output from make-card and turn it into a structured card object
@@ -95,13 +107,39 @@ function sanitizeId(id) {
   return id.replace(/[_ +'"]/g, '-');
 }
 
-function sendCardEmails(card) {
-  email.send({
-    template: 'included',
-    message: {
-      to: 'luna@exochain.com',
-    },
-  });
+function sendCardEmails(card, id) {
+  let url = protocol + canonicalDomain + '/';
+  for (let entry in card) {
+    let address = card[entry].email;
+    if (address) {
+      if (entry == 'you') {
+        email.send({
+          template: 'created',
+          message: {
+            to: address,
+          },
+          locals: {
+            card: card,
+            viewUrl: getCardUrl(id),
+            printUrl: getPrintUrl(id),
+          },
+        });
+      }
+      else {
+        email.send({
+          template: 'included',
+          message: {
+            to: address,
+          },
+          locals: {
+            card: card,
+            url: url,
+            type: entry,
+          },
+        });
+      }
+    }
+  }
 }
 
 // Cards

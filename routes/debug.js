@@ -3,6 +3,7 @@
 var express = require('express');
 var router = express.Router();
 const model = require('../model/index.js');
+const debugCard = require('../util/test-card.json');
 
 // Sometimes I want to test my code from the web because it's an easy entrypoint
 router.get('/queryAll', function(req, res, next) {
@@ -14,6 +15,11 @@ router.get('/queryAll', function(req, res, next) {
     res.render('debug', { debugString: "Typical, the debug failed:\n" + err });
   });
 });
+
+router.get('/sendEmail', (req, res, next) => {
+  model.sendCardEmails(debugCard);
+  res.send('good?');
+})
 
 module.exports = router;
 

@@ -1,0 +1,31 @@
+<html>
+  <head>
+    <style>
+      body {
+        font-family: sans-serif;
+        padding: 50px;
+        font-size: 1.2em;
+      }
+      a {
+        color: #00B7FF;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>
+      <%- card[type].name %>: <%- card.you.name %> included you on their ICE
+      card.
+    </h1>
+
+    <p>
+      An ICE (In Case of Emergency) card holds vital contact information for
+      the closest people in your life when you're in need. <%- card.you.name %>
+      included you as their <%- type %> contact.
+    </p>
+
+    <p>
+      Stay safe. <a href="<%- url %>">Make your own</a>.
+    </p>
+  </body>
+</html>
+
