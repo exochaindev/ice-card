@@ -40,7 +40,7 @@ const email = new Email({
 function parseCard(form) {
   let card = {};
   Object.keys(form).forEach(function(key) {
-    let parts = key.split("-");
+    let parts = key.split('-');
     let truekey = parts[0];
     let subkey = parts[1];
     let value = form[key];

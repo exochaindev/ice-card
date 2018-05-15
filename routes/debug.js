@@ -12,7 +12,7 @@ router.get('/queryAll', function(req, res, next) {
     let pretty = JSON.stringify(JSON.parse(cars), null, 4);
     res.render('debug', { debugString: pretty });
   }, (err) => {
-    res.render('debug', { debugString: "Typical, the debug failed:\n" + err });
+    res.render('debug', { debugString: 'Typical, the debug failed:\n' + err });
   });
 });
 
