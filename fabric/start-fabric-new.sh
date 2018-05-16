@@ -13,11 +13,9 @@ version=`date +%s`
 export MSYS_NO_PATHCONV=1
 starttime=$(date +%s)
 LANGUAGE=${1:-"golang"}
-projectname=ice-card
-CC_SRC_PATH=github.com/fabcar/go
-if [ "$LANGUAGE" = "node" -o "$LANGUAGE" = "NODE" ]; then
-	CC_SRC_PATH=/opt/gopath/src/github.com/fabcar/node
-fi
+projectname='icecard'
+export COMPOSE_PROJECT_NAME=$projectname
+CC_SRC_PATH=/opt/gopath/src/github.com
 
 # clean the keystore
 rm -rf ./hfc-key-store
