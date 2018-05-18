@@ -19,6 +19,19 @@ router.post('/', function(req, res, next) {
   model.sendCardEmails(card);
 });
 
+router.get('/:uid.json', function(req, res, next) {
+  req.json = true;
+  model.recordAccess(req);
+  let uid = model.sanitizeId(req.params.uid);
+  model.getCard(uid).then((card) => {
+    res.send(JSON.stringify(card))
+  }, (err) => {
+    let rv = {
+      "err" : err
+    };
+    res.send(JSON.stringify(rv));
+  });
+});
 router.get('/:uid', function(req, res, next) {
   model.recordAccess(req);
   let uid = model.sanitizeId(req.params.uid);
