@@ -24,12 +24,12 @@ router.get('/:uid.json', function(req, res, next) {
   model.recordAccess(req);
   let uid = model.sanitizeId(req.params.uid);
   model.getCard(uid).then((card) => {
-    res.send(JSON.stringify(card))
+    res.json(card);
   }, (err) => {
     let rv = {
       "err" : err
     };
-    res.send(JSON.stringify(rv));
+    res.json(rv);
   });
 });
 router.get('/:uid', function(req, res, next) {
