@@ -13,10 +13,8 @@ version=`date +%s`
 export MSYS_NO_PATHCONV=1
 starttime=$(date +%s)
 LANGUAGE=node
-CC_SRC_PATH=/opt/gopath/src/github.com/fabcar/node
-projectname=ice-card
-
-cd /home/luna/src/fabric/fabric-samples/basic-network
+CC_SRC_PATH=/opt/gopath/src/github.com
+projectname=icecard
 
 # Now launch the CLI container in order to install, instantiate chaincode
 # and prime the ledger with our 10 cars
