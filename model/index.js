@@ -6,11 +6,12 @@ const idGen = require('human-readable-ids').hri;
 // I might prefer that one, actually
 const fabric = require('./fabric.js');
 
+const cfg = require('../config.json');
 const secureCfg = require('../secure-config.json');
 
 const Email = require('email-templates');
 
-const canonicalDomain = '10.100.4.38:3000';
+const canonicalDomain = cfg.canonicalDomain;
 const protocol = 'http://';
 
 const email = new Email({
