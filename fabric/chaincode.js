@@ -72,7 +72,7 @@ let Chaincode = class {
     console.info('============= END : Create Car ===========');
   }
 
-  async queryAllCars(stub, args) {
+  async queryAll(stub, args) {
 
     let startKey = 'a';
     let endKey = 'z';
