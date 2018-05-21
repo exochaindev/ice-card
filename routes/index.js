@@ -22,6 +22,18 @@ router.post('/', function(req, res, next) {
   });
 });
 
+router.get('/:uid.json', function(req, res, next) {
+  model.recordAccess(req);
+  let uid = model.sanitizeId(req.params.uid);
+  model.getCard(uid).then((card) => {
+    res.json(card);
+  }, (err) => {
+    let rv = {
+      "err" : err
+    };
+    res.json(rv);
+  });
+});
 router.get('/:uid', function(req, res, next) {
   model.recordAccess(req);
   let uid = model.sanitizeId(req.params.uid);
@@ -46,7 +58,7 @@ router.get('/:uid/print', function(req, res, next) {
 
 router.get('/:uid/qr.:ext', function(req, res, next) {
   let uid = model.sanitizeId(req.params.uid);
-  let url = model.getCardUrl(uid, true);
+  let url = model.getCardUrl(uid, true, true);
   let qrSvg = qr.image(url, {
     type: req.params.ext,
     size: 6,
