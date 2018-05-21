@@ -20,7 +20,6 @@ router.post('/', function(req, res, next) {
 });
 
 router.get('/:uid.json', function(req, res, next) {
-  req.json = true;
   model.recordAccess(req);
   let uid = model.sanitizeId(req.params.uid);
   model.getCard(uid).then((card) => {
