@@ -84,8 +84,12 @@ function getCard(id) {
 
 // If absolute is true, return ice.card/:id or whatever
 // Otherwise, return /:id or whatever
-function getCardUrl(id, absolute = false) {
+function getCardUrl(id, absolute = false, includeProtocol = false) {
   let rv = '';
+  if (includeProtocol) {
+    rv += protocol;
+    absolute = true;
+  }
   if (absolute) {
     rv += canonicalDomain;
   }
