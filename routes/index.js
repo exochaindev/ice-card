@@ -5,9 +5,12 @@ var router = express.Router();
 const model = require('../model/index.js');
 const qr = require('qr-image');
 
-/* GET home page. */
-router.get('/', function(req, res, next) {
-  res.render('make-card', {  });
+router.get('/', async function(req, res, next) {
+  let card = {};
+  if (req.query.referrer) {
+    card = await model.referrerCard(req.query.referrer, req.query.contact);
+  }
+  res.render('make-card', { existing: card });
 });
 
 router.post('/', function(req, res, next) {
@@ -15,8 +18,8 @@ router.post('/', function(req, res, next) {
   let card = model.parseCard(req.body);
   model.addCard(card).then((id) => {
     res.redirect(model.getPrintUrl(id));
+    model.sendCardEmails(card, id);
   });
-  model.sendCardEmails(card);
 });
 
 router.get('/:uid', function(req, res, next) {

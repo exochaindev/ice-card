@@ -22,8 +22,13 @@ input {
   width: 45%;
   margin: 5px 2%;
   /* Supports calc */
-  width: calc(45% - 40px);
+  width: calc(50% - 43px);
   margin: 10px calc(20px);
+}
+.clear-group {
+  position: relative;
+  left: 515px;
+  bottom: 65px;
 }
 
 input[type="submit"] {
@@ -113,6 +118,13 @@ input[type="submit"] {
     /* Supports calc */
     width: calc(95% - 20px);
     margin: 5px calc(10px);
+  }
+}
+@media screen and (max-width: 615px) {
+  .clear-group {
+    display: block;
+    position: static;
+    margin: 10px 25px;
   }
 }
 

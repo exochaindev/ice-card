@@ -5,12 +5,13 @@ const idGen = require('human-readable-ids').hri;
 // TODO: I installed gfycat-style-urls
 // I might prefer that one, actually
 const fabric = require('./fabric.js');
-const canonicalDomain = 'localhost:3000'
-const protocol = 'http://'
 
 const secureCfg = require('../secure-config.json');
 
 const Email = require('email-templates');
+
+const canonicalDomain = '10.100.4.38:3000';
+const protocol = 'http://';
 
 const email = new Email({
   message: {
@@ -50,6 +51,25 @@ function parseCard(form) {
     card[truekey][subkey] = value;
   });
   return card;
+}
+
+function swapEntry(card, one, two) {
+  let temp = Object.assign({}, card[one]);
+  card[one] = Object.assign({}, card[two]);
+  card[two] = temp;
+}
+
+function referrerCard(id, type) {
+  return getCard(id).then((card) => {
+    // Swap you and [marked as] so your info is filled out
+    swapEntry(card, "you", type); // We should be you
+    swapEntry(card, type, "primary"); // They should be primary
+    return card;
+  }, (err) => {
+    // Fail simply by creating a completely new card
+    console.error(err);
+    return {};
+  });
 }
 
 function addCard(data) {
@@ -92,11 +112,15 @@ function getCardUrl(id, absolute = false) {
   rv += '/' + id
   return rv;
 }
-function getQrUrl(id, absolute = false) {
-  return getCardUrl(id, absolute) + '/qr.svg';
+function getQrUrl(id, absolute = false, incProt = false) {
+  return getCardUrl(id, absolute, incProt) + '/qr.svg';
 }
-function getPrintUrl(id, absolute = false) {
-  return getCardUrl(id, absolute) + '/print'
+function getPrintUrl(id, absolute = false, incProt = false) {
+  return getCardUrl(id, absolute, incProt) + '/print'
+}
+// type is the name of the contact type that this person WAS in the referral
+function getReferredUrl(id, type) {
+  return protocol + canonicalDomain + '/?referrer=' + id + '&contact=' + type;
 }
 
 function getId() {
@@ -108,9 +132,9 @@ function sanitizeId(id) {
 }
 
 function sendCardEmails(card, id) {
-  let url = protocol + canonicalDomain + '/';
   for (let entry in card) {
     let address = card[entry].email;
+    let url = getReferredUrl(id, entry);
     if (address) {
       if (entry == 'you') {
         email.send({
@@ -120,8 +144,8 @@ function sendCardEmails(card, id) {
           },
           locals: {
             card: card,
-            viewUrl: getCardUrl(id),
-            printUrl: getPrintUrl(id),
+            viewUrl: getCardUrl(id, true, true),
+            printUrl: getPrintUrl(id, true, true),
           },
         });
       }
@@ -145,6 +169,7 @@ function sendCardEmails(card, id) {
 
 // Cards
 module.exports.parseCard = parseCard;
+module.exports.referrerCard = referrerCard;
 module.exports.getCard = getCard;
 module.exports.addCard = addCard;
 

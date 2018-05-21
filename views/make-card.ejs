@@ -1,8 +1,21 @@
+<%
+  function capitalize(word) {
+    return word[0].toUpperCase() + word.substr(1);
+  }
+%>
 <!DOCTYPE html>
 <html>
   <head>
     <% title = 'Make an ICE card' %>
     <% include head.ejs %>
+    <script>
+      function clearGroup(group) {
+        let all = document.getElementsByClassName(group);
+        for (let i=0; i<all.length; i++) {
+          all[i].value = "";
+        };
+      }
+    </script>
   </head>
   <body>
     <h1>Make an ICE card</h1>
@@ -18,14 +31,33 @@
               "contingency",
               "emergency",
           ];
-          for (var i=0; i<names.length; i++) {
+          names.forEach(function(name) {
         %>
-          <h2><%- names[i][0].toUpperCase() + names[i].substr(1) %></h2>
-          <input type="text" placeholder="Name" name="<%- names[i] %>-name" />
-          <input type="email" placeholder="Email" name="<%- names[i] %>-email" />
-          <input type="text" placeholder="Phone" name="<%- names[i] %>-phone" />
-          <input type="text" placeholder="Address" name="<%- names[i] %>-address" />
-        <% } %>
+          <h2><%- capitalize(name) %></h2>
+          <%
+            var fields = [
+              "name",
+              "email",
+              "phone",
+              "address",
+            ];
+            fields.forEach((field) => {
+              var value = "";
+              if (existing[name] && existing[name][field]) {
+                value = existing[name][field];
+              }
+          %>
+            <input type="text"
+              placeholder="<%- capitalize(field) %>"
+              name="<%- name %>-<%- field %>"
+              class="<%- name %>" <%# Used for clearGroup %>
+              value="<%= value %>"
+            />
+          <% }); %>
+          <a href="javascript:void(0);" onclick="clearGroup('<%- name %>');" class="clear-group">
+            Clear
+          </a>
+        <% }); %>
         <hr />
         <input type="submit" value="Print it" />
       </form>
