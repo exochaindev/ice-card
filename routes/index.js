@@ -42,6 +42,7 @@ router.get('/:uid.json', needsCard);
 router.get('/:uid', needsCard);
 router.get('/:uid/print', needsCard);
 router.all('/:uid/make-secure', needsCard);
+router.all('/:uid/revoke-secure', needsCard);
 
 router.get('/:uid.json', function(req, res, next) {
   model.recordAccess(req);
@@ -56,13 +57,13 @@ router.get('/:uid/print', function(req, res, next) {
   let uid = req.uid;
   // On printed card, urls should be absolute url
   let url = model.getCardUrl(uid, true);
-  let addSecureUrl = model.getCardUrl(uid);
+  let cardUrl = model.getCardUrl(uid);
   let qrUrl = model.getQrUrl(uid);
   res.render('print-card', {
     contacts: req.card,
     url: url,
     qrUrl: qrUrl,
-    addSecureUrl: addSecureUrl
+    cardUrl: cardUrl,
   });
 });
 
@@ -78,14 +79,24 @@ router.all('/:uid/make-secure', function(req, res, next) {
   }
   req.allowed = can;
   next();
-})
+});
 router.get('/:uid/make-secure', function(req, res, next) {
-  res.render('add-secure', { cannotAdd: false });
+  let pass = genPass(4).join(' ');
+  let url = model.getCardUrl(req.uid);
+  res.render('add-secure', {
+    cannotAdd: false,
+    recommendPwd: pass,
+    url: url,
+  });
 });
 router.post('/:uid/make-secure', function(req, res, next) {
   model.makeSecure(req.uid, req.card, req.body.password);
   res.send("cool, you just did absolutely nothing") // (TODO)
-})
+});
+router.get('/:uid/revoke-secure', function(req, res, next) {
+  model.revokeSecure(req.uid, req.card);
+  res.send('Secure access has been revoked.')
+});
 
 router.get('/:uid/qr.:ext', function(req, res, next) {
   let uid = req.uid;
@@ -96,7 +107,7 @@ router.get('/:uid/qr.:ext', function(req, res, next) {
     margin: 0,
   });
   qrSvg.pipe(res);
-})
+});
 
 module.exports = router;
 

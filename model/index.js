@@ -104,7 +104,7 @@ function addCard(data) {
 }
 
 function updateCard(id, card) {
-  if (!card.encrypted) {
+  if (!card.encrypted && card.secure) {
     throw 'Cannot update card, tried to commit unencrypted card!';
   }
   fabric.sendTransaction('updateCard', [id, JSON.stringify(card)]);
@@ -130,6 +130,13 @@ function getCard(id) {
 
 function canAddSecure(card) {
   return card.secureExpires > Date.now();
+}
+function revokeSecure(id, card) {
+  if (!card.secure/* || Some nebulous idea of "authenticated" (TODO) */)
+  card.secureExpires = 0;
+  delete card.secure;
+  delete card.encrypted;
+  updateCard(id, card);
 }
 function makeSecure(id, card, password) {
   card.secureExpires = 0; // No more making secure / changing password, obviously!
@@ -231,4 +238,6 @@ module.exports.sendCardEmails = sendCardEmails;
 
 module.exports.secure = secure;
 module.exports.makeSecure = makeSecure;
+module.exports.revokeSecure = revokeSecure;
+
 
