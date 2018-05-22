@@ -216,4 +216,5 @@ module.exports.queryAll = queryAll;
 module.exports.getCard = getCard;
 module.exports.addCard = addCard;
 module.exports.recordAccess = recordAccess;
+module.exports.sendTransaction = sendTransaction;
 

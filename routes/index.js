@@ -82,6 +82,10 @@ router.all('/:uid/make-secure', function(req, res, next) {
 router.get('/:uid/make-secure', function(req, res, next) {
   res.render('add-secure', { cannotAdd: false });
 });
+router.post('/:uid/make-secure', function(req, res, next) {
+  model.makeSecure(req.uid, req.card, req.body.password);
+  res.send("cool, you just did absolutely nothing") // (TODO)
+})
 
 router.get('/:uid/qr.:ext', function(req, res, next) {
   let uid = req.uid;

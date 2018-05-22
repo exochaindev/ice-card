@@ -5,6 +5,7 @@ const idGen = require('human-readable-ids').hri;
 // TODO: I installed gfycat-style-urls
 // I might prefer that one, actually
 const fabric = require('./fabric.js');
+const secure = require('./secure.js');
 
 const cfg = require('../config.json');
 const secureCfg = require('../secure-config.json');
@@ -102,6 +103,13 @@ function addCard(data) {
   });
 }
 
+function updateCard(id, card) {
+  if (!card.encrypted) {
+    throw 'Cannot update card, tried to commit unencrypted card!';
+  }
+  fabric.sendTransaction('updateCard', [id, JSON.stringify(card)]);
+}
+
 async function recordAccess(req) {
   let data = {
     'ip': req.ip,
@@ -125,6 +133,9 @@ function canAddSecure(card) {
 }
 function makeSecure(id, card, password) {
   card.secureExpires = 0; // No more making secure / changing password, obviously!
+  card.secure = {};
+  secure.encryptCard(card, password);
+  updateCard(id, card);
 }
 
 // If absolute is true, return ice.card/:id or whatever
@@ -218,5 +229,6 @@ module.exports.queryAll = fabric.queryAll;
 module.exports.recordAccess = recordAccess;
 module.exports.sendCardEmails = sendCardEmails;
 
+module.exports.secure = secure;
 module.exports.makeSecure = makeSecure;
 

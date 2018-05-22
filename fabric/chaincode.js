@@ -105,18 +105,11 @@ let Chaincode = class {
     }
   }
 
-  async changeCarOwner(stub, args) {
-    console.info('============= START : changeCarOwner ===========');
+  async updateCard(stub, args) {
     if (args.length != 2) {
-      throw new Error('Incorrect number of arguments. Expecting 2');
+      throw new Error('Incorrect number of arguments. Expecting id and card as JSON');
     }
-
-    let carAsBytes = await stub.getState(args[0]);
-    let car = JSON.parse(carAsBytes);
-    car.owner = args[1];
-
-    await stub.putState(args[0], Buffer.from(JSON.stringify(car)));
-    console.info('============= END : changeCarOwner ===========');
+    await stub.putState(args[0], Buffer.from(args[1]));
   }
 };
 
