@@ -75,7 +75,22 @@ function referrerCard(id, type) {
   });
 }
 
+function initCard(card) {
+  // Set expiration date for adding security expiring
+  // This is needed so that someone cannot secure an unsecured card and
+  // essentially steal it
+  let hoursToMs = (
+    24 // Hours
+    * 60 // Minutes
+    * 60 // Seconds
+    * 1000 // Ms
+  );
+  let exp = Date.now() + hoursToMs * cfg.secureExpiresHours;
+  card["secureExpires"] = exp;
+}
+
 function addCard(data) {
+  initCard(data);
   var fabricData = [
     getId(),
     JSON.stringify(data),
@@ -103,6 +118,13 @@ function getCard(id) {
   }, (err) => {
     throw err;
   });
+}
+
+function canAddSecure(card) {
+  return card.secureExpires > Date.now();
+}
+function makeSecure(id, card, password) {
+  card.secureExpires = 0; // No more making secure / changing password, obviously!
 }
 
 // If absolute is true, return ice.card/:id or whatever
@@ -183,6 +205,7 @@ module.exports.parseCard = parseCard;
 module.exports.referrerCard = referrerCard;
 module.exports.getCard = getCard;
 module.exports.addCard = addCard;
+module.exports.canAddSecure = canAddSecure;
 
 // Urls
 module.exports.sanitizeId = sanitizeId;
@@ -194,4 +217,6 @@ module.exports.getReferredUrl = getReferredUrl;
 module.exports.queryAll = fabric.queryAll;
 module.exports.recordAccess = recordAccess;
 module.exports.sendCardEmails = sendCardEmails;
+
+module.exports.makeSecure = makeSecure;
 

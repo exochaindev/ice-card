@@ -22,51 +22,69 @@ router.post('/', function(req, res, next) {
   });
 });
 
-router.get('/:uid.json', function(req, res, next) {
-  model.recordAccess(req);
-  let uid = model.sanitizeId(req.params.uid);
-  model.getCard(uid).then((card) => {
-    res.json(card);
+router.all('/:uid*', function(req, res, next) {
+  req.uid = model.sanitizeId(req.params.uid);
+  next();
+});
+function needsCard(req, res, next) {
+  model.getCard(req.uid).then((card) => {
+    req.card = card;
+    next();
   }, (err) => {
     let rv = {
-      "err" : err
+      "error" : err,
     };
-    res.json(rv);
+    res.status(404).json(rv);
+    next(); // TODO: Should we next()?
   });
+}
+router.get('/:uid.json', needsCard);
+router.get('/:uid', needsCard);
+router.get('/:uid/print', needsCard);
+router.all('/:uid/make-secure', needsCard);
+
+router.get('/:uid.json', function(req, res, next) {
+  model.recordAccess(req);
+  res.json(req.card);
 });
 router.get('/:uid', function(req, res, next) {
   model.recordAccess(req);
-  let uid = model.sanitizeId(req.params.uid);
-  model.getCard(uid).then((contacts) => {
-    res.render('view-card', { contacts: contacts });
-  }, (err) => {
-    res.render('debug', { debugString: 'Error:\n' + err });
-  });
+  let uid = req.uid;
+  res.render('view-card', { contacts: req.card });
 });
-
 router.get('/:uid/print', function(req, res, next) {
-  let uid = model.sanitizeId(req.params.uid);
+  let uid = req.uid;
   // On printed card, urls should be absolute url
   let url = model.getCardUrl(uid, true);
   let addSecureUrl = model.getCardUrl(uid);
   let qrUrl = model.getQrUrl(uid);
-  model.getCard(uid).then((contacts) => {
   res.render('print-card', {
     contacts: req.card,
     url: url,
     qrUrl: qrUrl,
     addSecureUrl: addSecureUrl
-  }, (err) => {
-    res.render('debug', { debugString: 'Error:\n' + err });
   });
 });
 
+router.all('/:uid/make-secure', function(req, res, next) {
+  let uid = req.uid;
+  let card = req.card;
+  let can = model.canAddSecure(card);
+  if (!can) {
+    res.status(403).render('add-secure', {
+      cannotAdd: true,
+      newCardUrl: model.getReferredUrl(uid),
+    });
+  }
+  req.allowed = can;
+  next();
+})
 router.get('/:uid/make-secure', function(req, res, next) {
   res.render('add-secure', { cannotAdd: false });
 });
 
 router.get('/:uid/qr.:ext', function(req, res, next) {
-  let uid = model.sanitizeId(req.params.uid);
+  let uid = req.uid;
   let url = model.getCardUrl(uid, true, true);
   let qrSvg = qr.image(url, {
     type: req.params.ext,

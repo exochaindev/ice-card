@@ -1,3 +1,4 @@
 {
-  "canonicalDomain": "10.100.4.38"
+  "canonicalDomain": "10.100.4.38",
+  "secureExpiresHours": "24"
 }
