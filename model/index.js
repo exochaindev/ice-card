@@ -62,9 +62,11 @@ function swapEntry(card, one, two) {
 
 function referrerCard(id, type) {
   return getCard(id).then((card) => {
-    // Swap you and [marked as] so your info is filled out
-    swapEntry(card, "you", type); // We should be you
-    swapEntry(card, type, "primary"); // They should be primary
+    if (type) {
+      // Swap you and [marked as] so your info is filled out
+      swapEntry(card, "you", type); // We should be you
+      swapEntry(card, type, "primary"); // They should be primary
+    }
     return card;
   }, (err) => {
     // Fail simply by creating a completely new card
@@ -125,7 +127,11 @@ function getPrintUrl(id, absolute = false, incProt = false) {
 }
 // type is the name of the contact type that this person WAS in the referral
 function getReferredUrl(id, type) {
-  return protocol + canonicalDomain + '/?referrer=' + id + '&contact=' + type;
+  let rv = protocol + canonicalDomain + '/?referrer=' + id;
+  if (type) {
+    rv += '&contact=' + type;
+  }
+  return rv;
 }
 
 function getId() {
@@ -183,6 +189,7 @@ module.exports.sanitizeId = sanitizeId;
 module.exports.getCardUrl = getCardUrl;
 module.exports.getQrUrl = getQrUrl;
 module.exports.getPrintUrl = getPrintUrl;
+module.exports.getReferredUrl = getReferredUrl;
 
 module.exports.queryAll = fabric.queryAll;
 module.exports.recordAccess = recordAccess;

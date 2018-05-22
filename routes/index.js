@@ -48,12 +48,21 @@ router.get('/:uid/print', function(req, res, next) {
   let uid = model.sanitizeId(req.params.uid);
   // On printed card, urls should be absolute url
   let url = model.getCardUrl(uid, true);
+  let addSecureUrl = model.getCardUrl(uid);
   let qrUrl = model.getQrUrl(uid);
   model.getCard(uid).then((contacts) => {
-    res.render('print-card', { contacts: contacts, url: url, qrUrl: qrUrl });
+  res.render('print-card', {
+    contacts: req.card,
+    url: url,
+    qrUrl: qrUrl,
+    addSecureUrl: addSecureUrl
   }, (err) => {
     res.render('debug', { debugString: 'Error:\n' + err });
   });
+});
+
+router.get('/:uid/make-secure', function(req, res, next) {
+  res.render('add-secure', { cannotAdd: false });
 });
 
 router.get('/:uid/qr.:ext', function(req, res, next) {
