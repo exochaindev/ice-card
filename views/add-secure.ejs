@@ -13,8 +13,9 @@
         document.getElementById('fill').addEventListener('click', fill);
       }
       function fill() {
+        var rec = document.getElementById('fill').innerHTML;
         function doFill(el) {
-          el.value = 'correct horse battery staple';
+          el.value = rec;
           confirm.value = el.value;
           showPassFunc(el)();
           let showFor = 1000;
@@ -77,8 +78,7 @@
         <p>
           This password should be secure. It can be recovered with your friends.
           How about
-          <a id="fill" href="javascript:void(0);" onclick="fill();">correct horse battery staple</a>?
-          (chosen securely)
+          <a id="fill" href="javascript:void(0);" onclick="fill();"><%- recommendPwd %></a>?
         </p>
         <p>
           Securing your card allows you to

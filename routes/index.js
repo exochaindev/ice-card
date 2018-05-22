@@ -4,6 +4,7 @@ var express = require('express');
 var router = express.Router();
 const model = require('../model/index.js');
 const qr = require('qr-image');
+const genPass = require('eff-diceware-passphrase');
 
 router.get('/', async function(req, res, next) {
   let card = {};
