@@ -92,7 +92,11 @@ function queryAll() {
   return query('queryAll');
 }
 function getCard(id) {
-  return query('getCard', [id])
+  return query('getCard', [id]);
+}
+async function getClosestPerson(to) {
+  let jsonPerson = await query('getClosestPerson', [JSON.stringify(to)]);
+  return JSON.parse(jsonPerson);
 }
 
 async function sendTransaction(func, args) {
@@ -212,8 +216,10 @@ async function recordAccess(accessInfo) {
   return sendTransaction('recordAccess', [accessInfo]);
 }
 
+module.exports.query = query;
 module.exports.queryAll = queryAll;
 module.exports.getCard = getCard;
+module.exports.getClosestPerson = getClosestPerson;
 module.exports.addCard = addCard;
 module.exports.recordAccess = recordAccess;
 module.exports.sendTransaction = sendTransaction;

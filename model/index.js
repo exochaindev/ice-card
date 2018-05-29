@@ -76,7 +76,7 @@ function referrerCard(id, type) {
   });
 }
 
-function initCard(card) {
+function initCard(card, id) {
   // Set expiration date for adding security expiring
   // This is needed so that someone cannot secure an unsecured card and
   // essentially steal it
@@ -88,16 +88,20 @@ function initCard(card) {
   );
   let exp = Date.now() + hoursToMs * cfg.secureExpiresHours;
   card["secureExpires"] = exp;
+
+  // Passing cards around is easier when they hold their own key
+  card["key"] = id;
 }
 
 function addCard(data) {
-  initCard(data);
+  let id = getId();
+  initCard(data, id);
   var fabricData = [
-    getId(),
+    id,
     JSON.stringify(data),
   ];
   return fabric.addCard(fabricData).then((response) => {
-    return fabricData[0]; // Need that ID
+    return id; // Need that ID
   }, (err) => {
     throw 'Could not add card: ' + err
   });
@@ -242,6 +246,7 @@ function sendCardEmails(card, id) {
 module.exports.parseCard = parseCard;
 module.exports.referrerCard = referrerCard;
 module.exports.getCard = getCard;
+module.exports.getClosestPerson = fabric.getClosestPerson;
 module.exports.addCard = addCard;
 module.exports.canAddSecure = canAddSecure;
 
