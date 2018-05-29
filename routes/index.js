@@ -23,6 +23,12 @@ router.post('/', function(req, res, next) {
   });
 });
 
+router.post('/closest-person.json', async function(req, res, next) {
+  let original = req.body;
+  let closest = await model.getClosestPerson(original);
+  res.json(closest);
+})
+
 router.all('/:uid*', function(req, res, next) {
   req.uid = model.sanitizeId(req.params.uid);
   next();

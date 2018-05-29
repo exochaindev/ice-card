@@ -12,9 +12,39 @@
       function clearGroup(group) {
         let all = document.getElementsByClassName(group);
         for (let i=0; i<all.length; i++) {
-          all[i].value = "";
+          all[i].value = '';
         };
       }
+      function check(group) {
+        let req = {};
+        $('.' + group).each(function(i) {
+          // entry-name
+          let field = $(this).attr('name').split('-')[1];
+          req[field] = $(this).val();
+        });
+        let closest = $.ajax({
+          type: 'POST',
+          data: req,
+          url: '/closest-person.json',
+        }).done(function(data) {
+          console.log(data);
+        });
+      }
+      var checkTimeoutId;
+      function checkTimeout(e) {
+        var nonTypeTime = 1000;
+        clearTimeout(checkTimeoutId);
+        // We set class to the group name so we can do this
+        // TODO: Don't bank on this
+        let group = e.target.className;
+        checkTimeoutId = setTimeout(function() {
+          check(group);
+        }, nonTypeTime);
+      }
+      function init() {
+        $('input').on('input', checkTimeout);
+      }
+      $(init);
     </script>
   </head>
   <body>
@@ -40,6 +70,7 @@
               "email",
               "phone",
               "address",
+              "key",
             ];
             fields.forEach((field) => {
               var value = "";
@@ -47,10 +78,15 @@
                 value = existing[name][field];
               }
           %>
-            <input type="text"
+            <input
+              <% if (field == "key") { %>
+                type="hidden"
+              <% } else { %>
+                type="text"
+              <% } %>
               placeholder="<%- capitalize(field) %>"
               name="<%- name %>-<%- field %>"
-              class="<%- name %>" <%# Used for clearGroup %>
+              class="<%- name %>" <%# Used for clearGroup and more %>
               value="<%= value %>"
             />
           <% }); %>
