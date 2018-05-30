@@ -368,4 +368,6 @@ module.exports.secure = secure;
 module.exports.makeSecure = makeSecure;
 module.exports.revokeSecure = revokeSecure;
 
+module.exports.fabric = fabric;
+
 

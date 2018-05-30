@@ -9,11 +9,14 @@ const queryString = require('qs');
 // Sometimes I want to test my code from the web because it's an easy entrypoint
 router.get('/queryAll', function(req, res, next) {
   // Debug the things
-  model.queryAll().then((cars) => {
-    let pretty = JSON.stringify(JSON.parse(cars), null, 4);
-    res.render('debug', { debugString: pretty });
+  // model.queryAll().then((cars) => {
+  model.fabric.query('queryRange', ['a', 'z']).then((cars) => {
+    res.json(JSON.parse(cars));
+    // let pretty = JSON.stringify(JSON.parse(cars), null, 4);
+    // res.render('debug', { debugString: pretty });
   }, (err) => {
-    res.render('debug', { debugString: 'Typical, the debug failed:\n' + err });
+    throw err;
+    res.status(500).json({ error: err.toString() });
   });
 });
 
@@ -24,7 +27,7 @@ router.get('/sendEmail', (req, res, next) => {
 
 router.get('/queryString', function(req, res, next) {
   let rv = queryString.stringify(debugCard);
-  rv += "|||"
+  rv += '|||'
   rv += encodeURIComponent(JSON.stringify(debugCard));
   res.send(rv);
 });
