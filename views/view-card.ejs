@@ -23,6 +23,13 @@
       <% } %>
       <hr />
       <p>Stay safe. <a href="/">Make your own</a>.</p>
+      <p>
+        <% if (contacts.secure) { %>
+          <a href="<%- url %>/private">This is my card; see my private info</a>.
+        <% } else if (canAddSecure) { %>
+          <a href="<%- url %>/make-secure">Secure my card</a>.
+        <% } %>
+      </p>
     </div>
   </body>
 </html>
