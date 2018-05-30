@@ -12,10 +12,6 @@ router.get('/', async function(req, res, next) {
     card = await model.referrerCard(req.query.referrer, req.query.contact);
     if (card) {
       card = card.contacts;
-      if (card.you.key) {
-        // TODO: Flash "you have already made a card"
-        res.redirect(model.getCardUrl(card.you.key));
-      }
     }
   }
   res.render('make-card', { existing: card });

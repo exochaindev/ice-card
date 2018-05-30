@@ -32,5 +32,10 @@ router.get('/queryString', function(req, res, next) {
   res.send(rv);
 });
 
+router.get('/referring/:uid', async function(req, res, next) {
+  let rv = await model.fabric.getReferringCards(req.params.uid);
+  res.json(rv);
+})
+
 module.exports = router;
 

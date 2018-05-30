@@ -54,6 +54,62 @@ let Chaincode = class {
     });
   }
 
+  // Get all cards with contacts that have an id that corresponds to args[0]
+  async getReferringCards(stub, args) {
+
+    let id = args[0];
+
+    [
+      {key: id}
+    ]
+
+    let query = {
+      selector: {
+        contacts: {
+          "$or": [
+            {     primary: {key:id} },
+            { alternative: {key:id} },
+            { contingency: {key:id} },
+            {   emergency: {key:id} },
+          ]
+        }
+      }
+    };
+
+    let queryString = JSON.stringify(query);
+
+    let iterator = await stub.getQueryResult(queryString);
+
+    // This should be in a function because it duplicates queryRange
+    // BUT fabric makes this a TOTAL PAIN so I'm gonna leave it this way unless
+    // I have to change it
+    let allResults = [];
+    while (true) {
+      let res = await iterator.next();
+
+      if (res.value && res.value.value.toString()) {
+        let jsonRes = {};
+        console.log(res.value.value.toString('utf8'));
+
+        jsonRes.Key = res.value.key;
+        try {
+          jsonRes.Record = JSON.parse(res.value.value.toString('utf8'));
+        } catch (err) {
+          console.log(err);
+          jsonRes.Record = res.value.value.toString('utf8');
+        }
+        allResults.push(jsonRes);
+      }
+      if (res.done) {
+        console.log('end of data');
+        await iterator.close();
+        console.info(allResults);
+        return Buffer.from(JSON.stringify(allResults));
+      }
+    }
+
+  }
+
   async initLedger(stub, args) {
     console.info('============= START : Initialize Ledger ===========');
     // Nothing initial needed
