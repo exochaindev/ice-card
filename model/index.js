@@ -79,7 +79,7 @@ function referrerCard(id, type) {
   });
 }
 
-function initCard(card, id) {
+function initCard(card) {
   // Set expiration date for adding security expiring
   // This is needed so that someone cannot secure an unsecured card and
   // essentially steal it
@@ -105,7 +105,7 @@ function initCard(card, id) {
 }
 
 function addCard(data) {
-  initCard(data, id);
+  initCard(data);
   let id = data.contacts.you.key;
   var fabricData = [
     id,
