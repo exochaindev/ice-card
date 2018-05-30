@@ -11,6 +11,7 @@ const cfg = require('../config.json');
 const secureCfg = require('../secure-config.json');
 
 const Email = require('email-templates');
+const cmpString = require('string-similarity').compareTwoStrings;
 
 const canonicalDomain = cfg.canonicalDomain;
 const protocol = 'http://';
@@ -134,6 +135,98 @@ function getCard(id) {
   });
 }
 
+async function getClosestPerson(compareTo) {
+  // Because chaincode is a total pain to work with, it's 1000x times easier
+  // to nest these, even thought it'd be better for them to be flat in an
+  // ideal world
+
+  // Returns a proximity value, between two cards
+  // Bounded [0, 23] at the time of this comment, but upper max is mostly
+  // arbitrary
+  function getProximity(original, check) {
+    function precisionDst(one, two, precisionLevel) {
+      // Two empty strings should give 0 score, despite cmpString returning 1
+      // (they're exactly equal, but nothing is there to equal)
+      if (one && two) {
+        return Math.pow(cmpString(one, two), precisionLevel);
+      }
+      else {
+        return 0;
+      }
+    }
+
+    let length = original.name + original.address + original.email + original.phone;
+    // If we have less than ~15 characters of data, we can't really compare
+    if (length.length < 15) {
+      return 0;
+    }
+
+    // These have reason, but are essentially arbitrary
+    let weights = {
+      // Names have a lot of variation in reasonable use (nicknames, etc)
+      "name": 1,
+      "email": 6,
+      "address": 3,
+      "phone": 3,
+      // If they're referred, we should highly suggest that they are person, but
+      // if everything else matches someone better, it should be overridable
+      // Total of others = 13 rn, so 10 makes sense
+      "referral": 10,
+    };
+    let proximity = 0;
+    // cmpString returns [0, 1] (Dice's Coefficient)
+    // Names have a lot of variation in reasonable use
+    proximity += weights.name * precisionDst(original.name, check.name, 1);
+    // Addresses can be written very different ways
+    proximity += weights.address * precisionDst(original.address, check.address, 1);
+    // Email addresses should match exactly, essentially
+    proximity += weights.email * precisionDst(original.email, check.email, 5);
+    // Phone numbers often lack digits, have extra (-)s, etc
+    // Plus, a relevant area code may increase score
+    proximity += weights.phone * precisionDst(original.phone, check.phone, 0.5);
+    if (check.key && original.key) {
+      proximity += weights.referral * precisionDst(original.key, check.key, 10);
+    }
+
+    let max = 0;
+    for (let key in weights) {
+      max += weights[key];
+    }
+    // Normalize to those weights so we can make reasoned statements like
+    // if (proximity > 0.9) and se it like a confidence
+    proximity = proximity / max;
+
+    return proximity;
+  }
+
+  // TODO: This is an extremely naiive / slow way to do this
+  // Should probably use indexing and search for exact matches on keys first, etc
+  // And only *then* use this exhaustive fuzzy search
+  // threshold was selected by tinkering around until it felt right
+  let threshold = 0.1;
+  let cards = JSON.parse(await fabric.query('queryRange', ['a', 'z']));
+  let bestProx = -1;
+  let bestKey = '';
+  let bestEntry = '';
+  for (let key in cards) {
+    let card = cards[key].Record.contacts;
+    for (let entry in card) {
+      let person = card[entry];
+      let prox = getProximity(compareTo, person);
+      if (prox > bestProx && prox > threshold) {
+        bestProx = prox;
+        bestKey = key;
+        bestEntry = entry;
+      }
+    }
+  }
+  if (bestProx == -1) {
+    return JSON.stringify({"error": "no relevant users found"});
+  }
+  return JSON.stringify(cards[bestKey].Record.contacts[bestEntry]);
+
+}
+
 function canAddSecure(card) {
   return card.secureExpires > Date.now();
 }
@@ -248,7 +341,7 @@ function sendCardEmails(card, id) {
 module.exports.parseCard = parseCard;
 module.exports.referrerCard = referrerCard;
 module.exports.getCard = getCard;
-module.exports.getClosestPerson = fabric.getClosestPerson;
+module.exports.getClosestPerson = getClosestPerson;
 module.exports.addCard = addCard;
 module.exports.canAddSecure = canAddSecure;
 
