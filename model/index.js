@@ -56,7 +56,7 @@ function referrerCard(id, type) {
   });
 }
 
-function initCard(card) {
+async function initCard(card) {
   // Set expiration date for adding security expiring
   // This is needed so that someone cannot secure an unsecured card and
   // essentially steal it
@@ -68,6 +68,38 @@ function initCard(card) {
   );
   let exp = Date.now() + hoursToMs * cfg.secureExpiresHours;
   card.secureExpires = exp;
+
+  // Check if we complete an escrot capability
+  if (card.contacts.you.key) {
+    // Our key was explicitly declared (it was found elsewhere), i.e., someone
+    // is waiting for us for escrot
+    let referringCards = await fabric.getReferringCards(card.contacts.you.key);
+    for (let i in referringCards) {
+      let escrot = [card];
+      let referring = referringCards[i].Record;
+      console.log(referring)
+      for (let key in referring.contacts) {
+        let entry = referring.contacts[key];
+        if (entry.key != card.contacts.you.key) {
+          // Here's a person that may or may not be waiting for escrot
+          let otherChildCard = await getCard(entry.key);
+          console.log("other" + JSON.stringify(otherChildCard));
+          if (otherChildCard) {
+            if (otherChildCard.encrypted) {
+              console.log("ye, push it");
+              escrot.push(otherChildCard);
+            }
+          }
+        }
+      }
+      console.log(escrot)
+      let escrotNeeded = 3; // TODO: This should be configurable!!
+      if (escrot.length > escrotNeeded) {
+        // TODO: Do the escrot
+        console.log("do the escrot");
+      }
+    }
+  }
 
   // Every single entry gets initialized with a key, either by the web interface
   // (matched with someone by a human), by a referral (referred entry = you),
@@ -81,8 +113,8 @@ function initCard(card) {
 
 }
 
-function addCard(data) {
-  initCard(data);
+async function addCard(data) {
+  await initCard(data);
   let id = data.contacts.you.key;
   var fabricData = [
     id,
@@ -118,7 +150,8 @@ function getCard(id) {
   return fabric.getCard(id).then((card) => {
     return JSON.parse(card);
   }, (err) => {
-    throw err;
+    // Fail silently. This can be checked, but most of the time, we don't care
+    return null;
   });
 }
 
