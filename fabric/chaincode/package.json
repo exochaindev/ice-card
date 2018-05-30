@@ -12,7 +12,9 @@
 	"engine-strict": true,
 	"license": "Apache-2.0",
 	"dependencies": {
+		"@theledger/fabric-mock-stub": "^1.2.1",
 		"fabric-shim": "~1.1.0",
-		"fabric-shim-crypto": "^1.1.2"
+		"fabric-shim-crypto": "^1.1.2",
+		"string-similarity": "^1.2.0"
 	}
 }
