@@ -64,8 +64,14 @@ router.get('/:uid.json', function(req, res, next) {
 });
 router.get('/:uid', function(req, res, next) {
   model.recordAccess(req);
-  let uid = req.uid;
-  res.render('view-card', { contacts: req.card });
+  let canAddSecure = model.canAddSecure(req.card);
+  let url = model.getCardUrl(req.uid);
+  res.render('view-card', {
+    contacts: req.card.contacts,
+    uid: req.uid,
+    canAddSecure: canAddSecure,
+    url: url,
+  });
 });
 router.get('/:uid/print', function(req, res, next) {
   let uid = req.uid;
