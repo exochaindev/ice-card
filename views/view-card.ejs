@@ -19,10 +19,7 @@
           let key = names[i];
       %>
         <h2><%- key[0].toUpperCase() + key.substr(1) %></h2>
-        <p><%- contacts[key].name %></p>
-        <p><%- contacts[key].email %></p>
-        <p><%- contacts[key].phone %></p>
-        <p><%- contacts[key].address %></p>
+        <% include('entry.ejs', {entry: contacts[key]}) %>
       <% } %>
       <hr />
       <p>Stay safe. <a href="/">Make your own</a>.</p>
