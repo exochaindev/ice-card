@@ -57,6 +57,8 @@ router.get('/:uid', needsCard);
 router.get('/:uid/print', needsCard);
 router.all('/:uid/make-secure', needsCard);
 router.all('/:uid/revoke-secure', needsCard);
+router.post('/:uid/private', needsCard);
+router.post('/:uid/private.json', needsCard);
 
 router.get('/:uid.json', function(req, res, next) {
   model.recordAccess(req);
@@ -127,6 +129,20 @@ router.get('/:uid/qr.:ext', function(req, res, next) {
     margin: 0,
   });
   qrSvg.pipe(res);
+});
+
+router.post('/:uid/private', function(req, res, next) {
+  model.secure.decryptCard(req.card, req.body.password);
+  let all = Object.assign(req.card.secure, req.card.asymmetric);
+  res.render('unstructured', {
+    title: 'All private data for ' + req.card.contacts.you.name,
+    data: all,
+  });
+})
+router.post('/:uid/private.json', function(req, res, next) {
+  model.secure.decryptCard(req.card, req.body.password);
+  let all = Object.assign(req.card.secure, req.card.asymmetric);
+  res.json(all);
 });
 
 module.exports = router;
