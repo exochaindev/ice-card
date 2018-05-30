@@ -40,6 +40,10 @@
           console.log(entry);
           if (entry.error) {
             if (entry.error == "no relevant users found") {
+              // We changed it so much it wasn't recognized, the key probably
+              // doesn't apply anymore
+              // Clear key
+              fillGroup(group, '', true);
               $('.search-result.' + group).remove();
               return;
             }

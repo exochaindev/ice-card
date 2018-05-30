@@ -92,13 +92,21 @@ function initCard(card, id) {
   let exp = Date.now() + hoursToMs * cfg.secureExpiresHours;
   card.secureExpires = exp;
 
-  // Each *contact* holds a key as well, that makes users consistent
-  card.contacts.you.key = id;
+  // Every single entry gets initialized with a key, either by the web interface
+  // (matched with someone by a human), by a referral (referred entry = you),
+  // or by this right here: a new random key.
+  // This allows us to connect records, even if they haven't signed up yet.
+  for (let entry in card.contacts) {
+    if (!card.contacts[entry].key) {
+      card.contacts[entry].key = getId();
+    }
+  }
+
 }
 
 function addCard(data) {
-  let id = getId();
   initCard(data, id);
+  let id = data.contacts.you.key;
   var fabricData = [
     id,
     JSON.stringify(data),
