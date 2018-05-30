@@ -42,15 +42,17 @@ const email = new Email({
 // because HTML forms don't support structured input
 function parseCard(form) {
   let card = {};
+  card.contacts = {};
+  let contacts = card.contacts;
   Object.keys(form).forEach(function(key) {
     let parts = key.split('-');
     let truekey = parts[0];
     let subkey = parts[1];
     let value = form[key];
-    if (!card[truekey]) {
-      card[truekey] = {};
+    if (!contacts[truekey]) {
+      contacts[truekey] = {};
     }
-    card[truekey][subkey] = value;
+    contacts[truekey][subkey] = value;
   });
   return card;
 }
@@ -65,8 +67,8 @@ function referrerCard(id, type) {
   return getCard(id).then((card) => {
     if (type) {
       // Swap you and [marked as] so your info is filled out
-      swapEntry(card, "you", type); // We should be you
-      swapEntry(card, type, "primary"); // They should be primary
+      swapEntry(card.contacts, "you", type); // We should be you
+      swapEntry(card.contacts, type, "primary"); // They should be primary
     }
     return card;
   }, (err) => {
@@ -87,10 +89,10 @@ function initCard(card, id) {
     * 1000 // Ms
   );
   let exp = Date.now() + hoursToMs * cfg.secureExpiresHours;
-  card["secureExpires"] = exp;
+  card.secureExpires = exp;
 
-  // Passing cards around is easier when they hold their own key
-  card["key"] = id;
+  // Each *contact* holds a key as well, that makes users consistent
+  card.contacts.you.key = id;
 }
 
 function addCard(data) {

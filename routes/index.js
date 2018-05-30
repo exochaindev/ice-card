@@ -10,6 +10,9 @@ router.get('/', async function(req, res, next) {
   let card = {};
   if (req.query.referrer) {
     card = await model.referrerCard(req.query.referrer, req.query.contact);
+    if (card) {
+      card = card.contacts;
+    }
   }
   res.render('make-card', { existing: card });
 });
@@ -67,7 +70,7 @@ router.get('/:uid/print', function(req, res, next) {
   let cardUrl = model.getCardUrl(uid);
   let qrUrl = model.getQrUrl(uid);
   res.render('print-card', {
-    contacts: req.card,
+    contacts: req.card.contacts,
     url: url,
     qrUrl: qrUrl,
     cardUrl: cardUrl,
