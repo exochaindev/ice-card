@@ -82,7 +82,7 @@ function generateEncryptedKeyPair(password) {
       }
       else {
         // wraps and encrypts a Forge private key and outputs it in PEM format
-        keypair.privateKeyEncrypted = forge.pki.encryptRsaPrivateKey(privateKey, password);
+        keypair.privateKeyEncrypted = forge.pki.encryptRsaPrivateKey(keypair.privateKey, password);
         // Put the public in PEM for JSON storage
         keypair.publicKey = forge.pki.publicKeyToPem(keypair.publicKey);
         // TODO: Delete plaintext private key for code safety? Or does convenience win?
