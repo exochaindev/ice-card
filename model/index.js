@@ -69,38 +69,6 @@ async function initCard(card) {
   let exp = Date.now() + hoursToMs * cfg.secureExpiresHours;
   card.secureExpires = exp;
 
-  // Check if we complete an escrot capability
-  if (card.contacts.you.key) {
-    // Our key was explicitly declared (it was found elsewhere), i.e., someone
-    // is waiting for us for escrot
-    let referringCards = await fabric.getReferringCards(card.contacts.you.key);
-    for (let i in referringCards) {
-      let escrot = [card];
-      let referring = referringCards[i].Record;
-      console.log(referring)
-      for (let key in referring.contacts) {
-        let entry = referring.contacts[key];
-        if (entry.key != card.contacts.you.key) {
-          // Here's a person that may or may not be waiting for escrot
-          let otherChildCard = await getCard(entry.key);
-          console.log("other" + JSON.stringify(otherChildCard));
-          if (otherChildCard) {
-            if (otherChildCard.encrypted) {
-              console.log("ye, push it");
-              escrot.push(otherChildCard);
-            }
-          }
-        }
-      }
-      console.log(escrot)
-      let escrotNeeded = 3; // TODO: This should be configurable!!
-      if (escrot.length > escrotNeeded) {
-        // TODO: Do the escrot
-        console.log("do the escrot");
-      }
-    }
-  }
-
   // Every single entry gets initialized with a key, either by the web interface
   // (matched with someone by a human), by a referral (referred entry = you),
   // or by this right here: a new random key.
@@ -279,6 +247,42 @@ async function makeSecure(id, card, password) {
   let keypair = await secure.generateEncryptedKeyPair(password);
   card['publicKey'] = keypair.publicKey;
   card['privateKeyEncrypted'] = keypair.privateKeyEncrypted;
+
+  // Check if we complete an escrow capability
+  if (card.contacts.you.key) {
+    // Our key was explicitly declared (it was found elsewhere), i.e., someone
+    // is waiting for us for escrow
+    let referringCards = await fabric.getReferringCards(card.contacts.you.key);
+    for (let i in referringCards) {
+      let escrow = [card];
+      let referring = referringCards[i].Record;
+      if (referring.encrypted) {
+        console.log("referring " + i)
+        for (let key in referring.contacts) {
+          let entry = referring.contacts[key];
+          if (entry.key != card.contacts.you.key) {
+            // Here's a person that may or may not be waiting for escrow
+            let otherChildCard = await getCard(entry.key);
+            console.log("other" + entry.key);
+            if (otherChildCard) {
+              if (otherChildCard.encrypted) {
+                console.log("ye, push it");
+                escrow.push(otherChildCard);
+              }
+            }
+          }
+        }
+        let escrowNeeded = 3; // TODO: This should be configurable!!
+        if (escrow.length > escrowNeeded) {
+          // Now we have a problem. We're ready to do the escrow, but our key
+          // isn't stored anywhere. We need to notify the referrer to complete
+          // the escrow
+          referring.contacts.you.email;
+        }
+      }
+    }
+  }
+
   // TODO: Check if we can already share our key (requires concept of identity)
   secure.encryptCard(card, password);
   updateCard(id, card);
