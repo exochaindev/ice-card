@@ -277,7 +277,7 @@ async function makeSecure(id, card, password) {
           // Now we have a problem. We're ready to do the escrow, but our key
           // isn't stored anywhere. We need to notify the referrer to complete
           // the escrow
-          referring.contacts.you.email;
+          email.sendEscrowFinished(referring);
         }
       }
     }

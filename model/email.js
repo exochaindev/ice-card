@@ -65,11 +65,25 @@ function sendCardEmails(card) {
   }
 }
 
-function sendEscrotFinished(card) {
-  console.error("Not implemented");
+function sendEscrowFinished(card, count) {
+  let contacts = card.contacts;
+  let id = contacts.you.key;
+  let address = contacts.you.email;
+  let url = model.getCardUrl(id, true, true);
+  email.send({
+    template: 'escrow-finished',
+    message: {
+      to: address,
+    },
+    locals: {
+      url: url,
+      count: count,
+    },
+  });
 }
 
 module.exports = {
   sendCardEmails: sendCardEmails,
+  sendEscrowFinished: sendEscrowFinished,
 }
 
