@@ -4,10 +4,14 @@ const crypto = require('crypto');
 // TODO: Use all forge instead of crypto?
 const forge = require('node-forge');
 
+const model = require('./index.js');
+
 // AES is secure to known-plaintext, which is absolutely critical for:
 // - Public encrypted databases
 // - JSON
 const cipherType = 'aes192';
+
+const secrets = require('secrets.js-grempe');
 
 function encrypt(plaintext, password) {
   const cipher = crypto.createCipher(cipherType, Buffer.from(password));
@@ -49,7 +53,7 @@ function encryptCard(card, password) {
   card.secure = encrypt(plaintextJSON, password);
   let keypair = getKeyPairFromPems(card.publicKey, card.privateKeyEncrypted, password);
   changeLeaves(card.symmetric, function(val) {
-    return keypair.privateKey.encrypt(val);
+    return encryptAsymmetric(keypair.publicKey, val);
   });
   card.encrypted = true;
   return card; // Modifies in place as always, but return it for convenience
@@ -66,6 +70,10 @@ function decryptCard(card, password) {
   catch (err) {
     throw 'Could not parse card. Most likely reason: invalid password. ' + err
   }
+  let keypair = getKeyPairFromPems(card.publicKey, card.privateKeyEncrypted, password);
+  changeLeaves(card.symmetric, function(val) {
+    return decryptAsymmetric(keypair.privateKey, val);
+  });
   card.encrypted = false;
   return card; // Modifies in place as always, but return it for convenience
 }
@@ -95,14 +103,54 @@ function getKeyPairFromPems(publicPem, privateEncryptedPem, password) {
   let rv = {};
   // convert a PEM-formatted public key to a Forge public key
   rv.publicKey = forge.pki.publicKeyFromPem(publicPem);
-  // decrypts a PEM-formatted, encrypted private key
-  rv.privateKey = forge.pki.decryptRsaPrivateKey(privateEncryptedPem, password);
+  if (password) {
+    // decrypts a PEM-formatted, encrypted private key
+    rv.privateKey = forge.pki.decryptRsaPrivateKey(privateEncryptedPem, password);
+  }
   return rv;
+}
+
+function encryptAsymmetric(key, value) {
+  return Buffer.from(key.encrypt(value)).toString('base64');
+}
+function decryptAsymmetric(key, value) {
+  return key.decrypt(Buffer.from(val, 'base64')).toString('ascii');
+}
+function addAsymmetric(card, object, key, value) {
+  if (card.encrypted) {
+    let keypair = getKeyPairFromPems(card.publicKey);
+    let encrypted = encryptAsymmetric(keypair.publicKey, value);
+    object[key] = encrypted;
+  }
+  else {
+    // We have the key, it'll be re-encrypted by encryptCard, just set it
+    object[key] = value;
+  }
+}
+
+async function escrow(card, password, needed) {
+  let id = card.contacts.you.key;
+  console.log(id);
+  let intoCards = await model.getSecuredContacts(card.contacts);
+  console.log(intoCards);
+  let passwordHex = secrets.str2hex(password);
+  let shares = secrets.share(passwordHex, intoCards.length, needed);
+  for (let i in intoCards) {
+    let into = intoCards[i];
+    let share = shares[i];
+    if (!into.asymmetric.escrow) {
+      into.asymmetric.escrow = {};
+    }
+    console.log(share);
+    addAsymmetric(into, into.asymmetric.escrow, id, share);
+    model.updateCard(into);
+  }
 }
 
 module.exports = {
   encryptCard: encryptCard,
   decryptCard: decryptCard,
   generateEncryptedKeyPair: generateEncryptedKeyPair,
+  escrow: escrow,
 };
 

@@ -137,9 +137,10 @@ router.get('/:uid/complete-escrow', function(req, res, next) {
   });
 });
 router.post('/:uid/complete-escrow', function(req, res, next) {
-  // TODO: Do this
-  res.send('Not yet implemented');
-  // model.completeEscrow(uid, req.body.password);
+  // TODO: Don't hardcode that 3
+  model.secure.escrow(req.card, req.body.password, 3);
+  // TODO: template
+  res.send('Well done!')
 });
 router.get('/:uid/revoke-escrow', function(req, res, next) {
   let cannotAdd = !req.card.canEscrow;
