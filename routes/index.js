@@ -52,6 +52,8 @@ router.get('/:uid', needsCard);
 router.get('/:uid/print', needsCard);
 router.all('/:uid/make-secure', needsCard);
 router.all('/:uid/revoke-secure', needsCard);
+router.all('/:uid/complete-escrow', needsCard);
+router.all('/:uid/revoke-escrow', needsCard);
 router.post('/:uid/private', needsCard);
 router.post('/:uid/private.json', needsCard);
 
@@ -111,8 +113,47 @@ router.post('/:uid/make-secure', function(req, res, next) {
   res.send("cool, you just did absolutely nothing") // (TODO)
 });
 router.get('/:uid/revoke-secure', function(req, res, next) {
+  // TODO: This should require a password
   model.revokeSecure(req.uid, req.card);
   res.send('Secure access has been revoked.')
+});
+
+router.all('/:uid/complete-escrow', function(req, res, next) {
+  let can = req.card.canEscrow;
+  if (!can) {
+	res.status(403).render('complete-escrow', {
+	  cannotAdd: true,
+	  newCardUrl: model.getReferredUrl(req.params.uid),
+	});
+  }
+  next();
+});
+router.get('/:uid/complete-escrow', function(req, res, next) {
+  // TODO: Check for hasEscrow and talk about it
+  let cannotAdd = !req.card.canEscrow;
+  res.render('complete-escrow', {
+	url: model.getCardUrl(req.params.uid),
+	cannotAdd: false,
+  });
+});
+router.post('/:uid/complete-escrow', function(req, res, next) {
+  // TODO: Do this
+  res.send('Not yet implemented');
+  // model.completeEscrow(uid, req.body.password);
+});
+router.get('/:uid/revoke-escrow', function(req, res, next) {
+  let cannotAdd = !req.card.canEscrow;
+  res.render('revoke-escrow', {
+	url: model.getCardUrl(req.params.uid),
+	cannotAdd: cannotAdd,
+	newCardUrl: model.getReferredUrl(req.params.uid),
+  });
+});
+router.post('/:uid/revoke-escrow', function(req, res, next) {
+  req.card.canEscrow = false;
+  model.updateCard(req.card);
+  // TODO: template
+  res.send('Revoked successfully')
 });
 
 router.get('/:uid/qr.:ext', function(req, res, next) {

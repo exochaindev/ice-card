@@ -249,6 +249,12 @@ async function makeSecure(id, card, password) {
   card['publicKey'] = keypair.publicKey;
   card['privateKeyEncrypted'] = keypair.privateKeyEncrypted;
 
+  card['canEscrow'] = true;
+  card['hasEscrow'] = false;
+
+  // TODO: To make this query faster, we could store the number escrow in the
+  // referring card, and then increment it whenever we secure
+
   // Check if we complete an escrow capability
   if (card.contacts.you.key) {
     // Our key was explicitly declared (it was found elsewhere), i.e., someone
