@@ -261,24 +261,11 @@ async function makeSecure(id, card, password) {
     // is waiting for us for escrow
     let referringCards = await fabric.getReferringCards(card.contacts.you.key);
     for (let i in referringCards) {
-      let escrow = [card];
       let referring = referringCards[i].Record;
       if (referring.encrypted) {
-        console.log("referring " + i)
-        for (let key in referring.contacts) {
-          let entry = referring.contacts[key];
-          if (entry.key != card.contacts.you.key) {
-            // Here's a person that may or may not be waiting for escrow
-            let otherChildCard = await getCard(entry.key);
-            console.log("other" + entry.key);
-            if (otherChildCard) {
-              if (otherChildCard.encrypted) {
-                console.log("ye, push it");
-                escrow.push(otherChildCard);
-              }
-            }
-          }
-        }
+        // Alright, we've got somebody who included us, who has a password that
+        // could be escrowed
+        let escrow = await getSecuredContacts(referring.contacts);
         let escrowNeeded = 3; // TODO: This should be configurable!!
         if (escrow.length > escrowNeeded) {
           // Now we have a problem. We're ready to do the escrow, but our key
@@ -293,6 +280,20 @@ async function makeSecure(id, card, password) {
   // TODO: Check if we can already share our key (requires concept of identity)
   secure.encryptCard(card, password);
   updateCard(card);
+}
+
+async function getSecuredContacts(contacts) {
+  let rv = [];
+  for (let entryKey in contacts) {
+    let entry = contacts[entryKey];
+    let otherChildCard = await getCard(entry.key);
+    if (otherChildCard) {
+      if (otherChildCard.encrypted) {
+        rv.push(otherChildCard);
+      }
+    }
+  }
+  return rv;
 }
 
 // If absolute is true, return ice.card/:id or whatever
@@ -347,6 +348,8 @@ module.exports.getClosestPerson = getClosestPerson;
 module.exports.addCard = addCard;
 module.exports.updateCard = updateCard;
 module.exports.canAddSecure = canAddSecure;
+
+module.exports.getSecuredContacts = getSecuredContacts;
 
 // Urls
 module.exports.sanitizeId = sanitizeId;
