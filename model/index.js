@@ -6,37 +6,14 @@ const idGen = require('human-readable-ids').hri;
 // I might prefer that one, actually
 const fabric = require('./fabric.js');
 const secure = require('./secure.js');
+const email = require('./email.js');
 
 const cfg = require('../config.json');
-const secureCfg = require('../secure-config.json');
 
-const Email = require('email-templates');
 const cmpString = require('string-similarity').compareTwoStrings;
 
 const canonicalDomain = cfg.canonicalDomain;
 const protocol = 'http://';
-
-const email = new Email({
-  message: {
-    from: 'no-reply@' + canonicalDomain,
-  },
-  transport: {
-    host: secureCfg.email.host,
-    secureConnection: true,
-    port: 465,
-    auth: {
-      user: secureCfg.email.user,
-      pass: secureCfg.email.password,
-    },
-  },
-  views: {
-    options: {
-      extension: 'ejs',
-    },
-    root: './views/emails/',
-  },
-  send: true,
-});
 
 // Take the output from make-card and turn it into a structured card object
 // This is unfortunately necessary to have nice structured data
@@ -112,7 +89,9 @@ function addCard(data) {
     JSON.stringify(data),
   ];
   return fabric.addCard(fabricData).then((response) => {
-    return id; // Need that ID
+    // Send viral-factor emails. This helps us complete escrow and gain users
+    email.sendCardEmails(data);
+    return id; // Need that ID to redirect
   }, (err) => {
     throw 'Could not add card: ' + err
   });
@@ -309,42 +288,6 @@ function sanitizeId(id) {
   return id.replace(/[_ +'"]/g, '-');
 }
 
-function sendCardEmails(card, id) {
-  for (let entry in card) {
-    let address = card[entry].email;
-    let url = getReferredUrl(id, entry);
-    if (address) {
-      if (entry == 'you') {
-        email.send({
-          template: 'created',
-          message: {
-            to: address,
-          },
-          locals: {
-            card: card,
-            viewUrl: getCardUrl(id, true, true),
-            printUrl: getPrintUrl(id, true, true),
-          },
-        });
-      }
-      else {
-        email.send({
-          template: 'included',
-          message: {
-            to: address,
-          },
-          locals: {
-            card: card,
-            url: url,
-            type: entry,
-            siteName: canonicalDomain,
-          },
-        });
-      }
-    }
-  }
-}
-
 // Cards
 module.exports.parseCard = parseCard;
 module.exports.referrerCard = referrerCard;
@@ -362,7 +305,6 @@ module.exports.getReferredUrl = getReferredUrl;
 
 module.exports.queryAll = fabric.queryAll;
 module.exports.recordAccess = recordAccess;
-module.exports.sendCardEmails = sendCardEmails;
 
 module.exports.secure = secure;
 module.exports.makeSecure = makeSecure;

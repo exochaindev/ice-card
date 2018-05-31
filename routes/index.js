@@ -26,7 +26,6 @@ router.post('/', function(req, res, next) {
   let card = model.parseCard(req.body);
   model.addCard(card).then((id) => {
     res.redirect(model.getPrintUrl(id));
-    model.sendCardEmails(card, id);
   });
 });
 
