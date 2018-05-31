@@ -29,11 +29,10 @@ const email = new Email({
 
 function sendCardEmails(card) {
   let contacts = card.contacts;
-  let id = card.contacts.you.key;
-  console.log(id);
+  let id = contacts.you.key;
   for (let entry in contacts) {
     let address = contacts[entry].email;
-    let url = model.getReferredUrl(id, entry);
+    let url = model.getReferredUrl(id, entry, true, true);
     if (address) {
       if (entry == 'you') {
         email.send({

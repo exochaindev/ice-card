@@ -309,8 +309,15 @@ function getPrintUrl(id, absolute = false, incProt = false) {
   return getCardUrl(id, absolute, incProt) + '/print'
 }
 // type is the name of the contact type that this person WAS in the referral
-function getReferredUrl(id, type) {
-  let rv = protocol + canonicalDomain + '/?referrer=' + id;
+function getReferredUrl(id, type, absolute = false, incProt = false) {
+  let rv = '';
+  if (incProt) {
+    rv += protocol;
+  }
+  if (absolute) {
+    rv += canonicalDomain;
+  }
+  rv += '/?referrer=' + id;
   if (type) {
     rv += '&contact=' + type;
   }
