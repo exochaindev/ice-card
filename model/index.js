@@ -97,7 +97,8 @@ async function addCard(data) {
   });
 }
 
-function updateCard(id, card) {
+function updateCard(card) {
+  let id = card.contacts.you.key;
   if (!card.encrypted && card.secure) {
     throw 'Cannot update card, tried to commit unencrypted card!';
   }
@@ -225,7 +226,7 @@ function revokeSecure(id, card) {
     card.secureExpires = 0;
     delete card.secure;
     delete card.encrypted;
-    updateCard(id, card);
+    updateCard(card);
   }
 }
 async function makeSecure(id, card, password) {
@@ -285,7 +286,7 @@ async function makeSecure(id, card, password) {
 
   // TODO: Check if we can already share our key (requires concept of identity)
   secure.encryptCard(card, password);
-  updateCard(id, card);
+  updateCard(card);
 }
 
 // If absolute is true, return ice.card/:id or whatever
@@ -338,6 +339,7 @@ module.exports.referrerCard = referrerCard;
 module.exports.getCard = getCard;
 module.exports.getClosestPerson = getClosestPerson;
 module.exports.addCard = addCard;
+module.exports.updateCard = updateCard;
 module.exports.canAddSecure = canAddSecure;
 
 // Urls
