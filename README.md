@@ -22,6 +22,17 @@ and that makes me scared.
     git clone https://github.com/exochaindev/ice-card.git
     make
 
+This will expose the Web app *and the JSON api* to port 3000.
+
+## Other useful things you might want to know about
+
+You can also run `node util/populate.js` to fill up some data that might be
+useful, go to `/debug/queryAll` to see what it put there. For convenience, you
+can start and populate with `make dev`.
+
+The DB doesn't have to be cleared every run. Edit `fabric/startFabric.sh` to
+remove `rm -rf ./hfc-key-store` to persist.
+
 If you've figured out how to make docker-compose work without root, you can go
 into the shell files and remove the `sudo`s, otherwise you'll need root.
 
