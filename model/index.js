@@ -239,12 +239,18 @@ async function makeSecure(id, card, password) {
   // without needing us there.
   // This field's fields are not encrypted, but their values are. E.g.:
   // "asymmetric" : {
-  //   "keys" : {
+  //   "escrow" : {
   //     "cool-rabbit-12" : "ehtxuntaexn{{RSA encrypted password part}}oent"
+  //     etc
   //   }
+  //   etc
   // }
   card.asymmetric = {};
   // Generate an RSA keypair to be used when someone else's key is shared
+  // TODO: This should really be Exochain's keypair. Maybe make them make an
+  // account / etc
+  // Or it could flow the other way, where you make an exo account *from this*
+  // since IMO this is the easier flow
   let keypair = await secure.generateEncryptedKeyPair(password);
   card['publicKey'] = keypair.publicKey;
   card['privateKeyEncrypted'] = keypair.privateKeyEncrypted;
@@ -267,11 +273,13 @@ async function makeSecure(id, card, password) {
         // could be escrowed
         let escrow = await getSecuredContacts(referring.contacts);
         let escrowNeeded = 3; // TODO: This should be configurable!!
-        if (escrow.length > escrowNeeded) {
+        // Why +1: We should be included, but we aren't yet
+        let count = escrow.length + 1
+        if (count > escrowNeeded) {
           // Now we have a problem. We're ready to do the escrow, but our key
           // isn't stored anywhere. We need to notify the referrer to complete
           // the escrow
-          email.sendEscrowFinished(referring);
+          email.sendEscrowFinished(referring, count);
         }
       }
     }
