@@ -25,6 +25,6 @@ and that makes me scared.
 If you've figured out how to make docker-compose work without root, you can go
 into the shell files and remove the `sudo`s, otherwise you'll need root.
 
-If you don't have [nodemon](https://github.com/remy/nodemon) you can run `npm
-start`, or edit the makefile accordingly.
+I also recommend [nodemon](https://github.com/remy/nodemon) for auto-reload.
+The Makefile will detect it and use it if you have it.
 
