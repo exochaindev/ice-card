@@ -24,7 +24,10 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.use('/', require('./routes/common.js').router);
+app.use('/', require('./routes/json.js'));
 app.use('/', indexRouter);
+app.use('/', require('./routes/secure.js'));
 if (debug) {
   var debugRouter = require('./routes/debug');
   app.use('/debug', debugRouter);
