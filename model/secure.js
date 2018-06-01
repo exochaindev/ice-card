@@ -13,6 +13,67 @@ const cipherType = 'aes192';
 
 const secrets = require('secrets.js-grempe');
 
+async function makeSecure(card, password) {
+  card.secureExpires = 0; // No more making secure / changing password, obviously!
+  // The secure field is entirely encrypted, every time with AES. This keeps
+  // metadata secure
+  card.secure = {};
+  // The asymmetric field is for data encrypted with our *public key*
+  // This is initially added so that a friend's key can be split and shared
+  // without needing us there.
+  // This field's fields are not encrypted, but their values are. E.g.:
+  // "asymmetric" : {
+  //   "escrow" : {
+  //     "cool-rabbit-12" : "ehtxuntaexn{{RSA encrypted password part}}oent"
+  //     etc
+  //   }
+  //   etc
+  // }
+  card.asymmetric = {};
+  // Generate an RSA keypair to be used when someone else's key is shared
+  // TODO: This should really be Exochain's keypair. Maybe make them make an
+  // account / etc
+  // Or it could flow the other way, where you make an exo account *from this*
+  // since IMO this is the easier flow
+  let keypair = await generateEncryptedKeyPair(password);
+  card['publicKey'] = keypair.publicKey;
+  card['privateKeyEncrypted'] = keypair.privateKeyEncrypted;
+
+  card['canEscrow'] = true;
+  card['hasEscrow'] = false;
+
+  // TODO: To make this query faster, we could store the number escrow in the
+  // referring card, and then increment it whenever we secure
+
+  // Check if we complete an escrow capability
+  if (card.contacts.you.key) {
+    // Our key was explicitly declared (it was found elsewhere), i.e., someone
+    // is waiting for us for escrow
+    let referringCards = await model.fabric.getReferringCards(card.contacts.you.key);
+    for (let i in referringCards) {
+      let referring = referringCards[i].Record;
+      if (referring.encrypted) {
+        // Alright, we've got somebody who included us, who has a password that
+        // could be escrowed
+        let escrow = await getSecuredContacts(referring.contacts);
+        let escrowNeeded = 3; // TODO: This should be configurable!!
+        // Why +1: We should be included, but we aren't yet
+        let count = escrow.length + 1
+        if (count > escrowNeeded) {
+          // Now we have a problem. We're ready to do the escrow, but our key
+          // isn't stored anywhere. We need to notify the referrer to complete
+          // the escrow
+          model.email.sendEscrowFinished(referring, count);
+        }
+      }
+    }
+  }
+
+  // TODO: Check if we can already share our key (requires concept of identity)
+  encryptCard(card, password);
+  model.updateCard(card);
+}
+
 function encrypt(plaintext, password) {
   const cipher = crypto.createCipher(cipherType, Buffer.from(password));
   let encrypted = cipher.update(plaintext, 'utf8', 'base64');
@@ -130,7 +191,7 @@ function addAsymmetric(card, object, key, value) {
 
 async function escrow(card, password, needed) {
   let id = card.contacts.you.key;
-  let intoCards = await model.getSecuredContacts(card.contacts);
+  let intoCards = await getSecuredContacts(card.contacts);
   let passwordHex = secrets.str2hex(password);
   let shares = secrets.share(passwordHex, intoCards.length, needed);
   for (let i in intoCards) {
@@ -144,10 +205,39 @@ async function escrow(card, password, needed) {
   }
 }
 
+function canAddSecure(card) {
+  return card.secureExpires > Date.now();
+}
+function revokeSecure(card) {
+  // Don't allow security to be revoke (=data deleted) by just anyone
+  if (!card.secure/* || Some nebulous idea of "authenticated" (TODO) */)
+  {
+    card.secureExpires = 0;
+    delete card.secure;
+    delete card.encrypted;
+    model.updateCard(card);
+  }
+}
+async function getSecuredContacts(contacts) {
+  let rv = [];
+  for (let entryKey in contacts) {
+    let entry = contacts[entryKey];
+    let otherChildCard = await model.getCard(entry.key);
+    if (otherChildCard) {
+      if (otherChildCard.encrypted) {
+        rv.push(otherChildCard);
+      }
+    }
+  }
+  return rv;
+}
+
 module.exports = {
   encryptCard: encryptCard,
   decryptCard: decryptCard,
-  generateEncryptedKeyPair: generateEncryptedKeyPair,
   escrow: escrow,
+  makeSecure: makeSecure,
+  canAddSecure: canAddSecure,
+  revokeSecure: revokeSecure,
 };
 

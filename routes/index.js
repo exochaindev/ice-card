@@ -31,7 +31,7 @@ router.get('/:uid/print', c.needsCard);
 
 router.get('/:uid', function(req, res, next) {
   model.recordAccess(req);
-  let canAddSecure = model.canAddSecure(req.card);
+  let canAddSecure = model.secure.canAddSecure(req.card);
   let url = model.getCardUrl(req.uid);
   res.render('view-card', {
     contacts: req.card.contacts,
