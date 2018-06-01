@@ -1,4 +1,4 @@
 {
-  "canonicalDomain": "10.100.4.38",
+  "canonicalDomain": "localhost:3000",
   "secureExpiresHours": "24"
 }
