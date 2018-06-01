@@ -9,13 +9,15 @@
       function nest(o) {
         %><ul><%
         for (var key in o) {
+          %><li><%- key %><br /><%
           var val = o[key];
-          if (typeof(o) == typeof({})) {
+          if (typeof(val) == typeof({})) {
             nest(val);
           }
           else {
-            %><li><%- key %><br /><%- val %></li><%
+            %><%- val %><%
           }
+          %></li><%
         }
         %></ul><%
       }
