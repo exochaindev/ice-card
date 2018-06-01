@@ -16,7 +16,7 @@ router.post('/:uid/private', c.needsCard);
 router.all('/:uid/make-secure', function(req, res, next) {
   let uid = req.uid;
   let card = req.card;
-  let can = model.canAddSecure(card);
+  let can = model.secure.canAddSecure(card);
   if (!can) {
     res.status(403).render('add-secure', {
       cannotAdd: true,
@@ -37,7 +37,7 @@ router.get('/:uid/make-secure', function(req, res, next) {
   });
 });
 router.post('/:uid/make-secure', function(req, res, next) {
-  model.makeSecure(req.card, req.body.password);
+  model.secure.makeSecure(req.card, req.body.password);
   res.send("cool, you just did absolutely nothing") // (TODO)
 });
 router.get('/:uid/revoke-secure', function(req, res, next) {
@@ -78,9 +78,9 @@ router.get('/:uid/revoke-escrow', function(req, res, next) {
 	newCardUrl: model.getReferredUrl(req.params.uid),
   });
 });
-router.post('/:uid/revoke-escrow', function(req, res, next) {
+router.post('/:uid/revoke-escrow', async function(req, res, next) {
   req.card.canEscrow = false;
-  model.updateCard(req.card);
+  await model.updateCard(req.card);
   // TODO: template
   res.send('Revoked successfully')
 });

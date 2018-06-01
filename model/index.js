@@ -83,12 +83,7 @@ async function initCard(card) {
 
 async function addCard(data) {
   await initCard(data);
-  let id = data.contacts.you.key;
-  var fabricData = [
-    id,
-    JSON.stringify(data),
-  ];
-  return fabric.addCard(fabricData).then((response) => {
+  return fabric.addCard(data).then((response) => {
     // Send viral-factor emails. This helps us complete escrow and gain users
     email.sendCardEmails(data);
     return id; // Need that ID to redirect
@@ -97,12 +92,11 @@ async function addCard(data) {
   });
 }
 
-function updateCard(card) {
-  let id = card.contacts.you.key;
+async function updateCard(card) {
   if (!card.encrypted && card.secure) {
     throw 'Cannot update card, tried to commit unencrypted card!';
   }
-  fabric.sendTransaction('updateCard', [id, JSON.stringify(card)]);
+  await fabric.updateCard(card);
 }
 
 async function recordAccess(req) {
@@ -111,17 +105,7 @@ async function recordAccess(req) {
     'ua': req.get('User-Agent'),
     'url': req.originalUrl,
   };
-  let accessData = JSON.stringify(data);
   await fabric.recordAccess(accessData);
-}
-
-function getCard(id) {
-  return fabric.getCard(id).then((card) => {
-    return JSON.parse(card);
-  }, (err) => {
-    // Fail silently. This can be checked, but most of the time, we don't care
-    return null;
-  });
 }
 
 async function getClosestPerson(compareTo) {
@@ -216,94 +200,6 @@ async function getClosestPerson(compareTo) {
 
 }
 
-function canAddSecure(card) {
-  return card.secureExpires > Date.now();
-}
-function revokeSecure(card) {
-  // Don't allow security to be revoke (=data deleted) by just anyone
-  if (!card.secure/* || Some nebulous idea of "authenticated" (TODO) */)
-  {
-    card.secureExpires = 0;
-    delete card.secure;
-    delete card.encrypted;
-    updateCard(card);
-  }
-}
-async function makeSecure(card, password) {
-  card.secureExpires = 0; // No more making secure / changing password, obviously!
-  // The secure field is entirely encrypted, every time with AES. This keeps
-  // metadata secure
-  card.secure = {};
-  // The asymmetric field is for data encrypted with our *public key*
-  // This is initially added so that a friend's key can be split and shared
-  // without needing us there.
-  // This field's fields are not encrypted, but their values are. E.g.:
-  // "asymmetric" : {
-  //   "escrow" : {
-  //     "cool-rabbit-12" : "ehtxuntaexn{{RSA encrypted password part}}oent"
-  //     etc
-  //   }
-  //   etc
-  // }
-  card.asymmetric = {};
-  // Generate an RSA keypair to be used when someone else's key is shared
-  // TODO: This should really be Exochain's keypair. Maybe make them make an
-  // account / etc
-  // Or it could flow the other way, where you make an exo account *from this*
-  // since IMO this is the easier flow
-  let keypair = await secure.generateEncryptedKeyPair(password);
-  card['publicKey'] = keypair.publicKey;
-  card['privateKeyEncrypted'] = keypair.privateKeyEncrypted;
-
-  card['canEscrow'] = true;
-  card['hasEscrow'] = false;
-
-  // TODO: To make this query faster, we could store the number escrow in the
-  // referring card, and then increment it whenever we secure
-
-  // Check if we complete an escrow capability
-  if (card.contacts.you.key) {
-    // Our key was explicitly declared (it was found elsewhere), i.e., someone
-    // is waiting for us for escrow
-    let referringCards = await fabric.getReferringCards(card.contacts.you.key);
-    for (let i in referringCards) {
-      let referring = referringCards[i].Record;
-      if (referring.encrypted) {
-        // Alright, we've got somebody who included us, who has a password that
-        // could be escrowed
-        let escrow = await getSecuredContacts(referring.contacts);
-        let escrowNeeded = 3; // TODO: This should be configurable!!
-        // Why +1: We should be included, but we aren't yet
-        let count = escrow.length + 1
-        if (count > escrowNeeded) {
-          // Now we have a problem. We're ready to do the escrow, but our key
-          // isn't stored anywhere. We need to notify the referrer to complete
-          // the escrow
-          email.sendEscrowFinished(referring, count);
-        }
-      }
-    }
-  }
-
-  // TODO: Check if we can already share our key (requires concept of identity)
-  secure.encryptCard(card, password);
-  updateCard(card);
-}
-
-async function getSecuredContacts(contacts) {
-  let rv = [];
-  for (let entryKey in contacts) {
-    let entry = contacts[entryKey];
-    let otherChildCard = await getCard(entry.key);
-    if (otherChildCard) {
-      if (otherChildCard.encrypted) {
-        rv.push(otherChildCard);
-      }
-    }
-  }
-  return rv;
-}
-
 // If absolute is true, return ice.card/:id or whatever
 // Otherwise, return /:id or whatever
 function getCardUrl(id, absolute = false, includeProtocol = false) {
@@ -354,13 +250,10 @@ function sanitizeId(id) {
 // Cards
 module.exports.parseCard = parseCard;
 module.exports.referrerCard = referrerCard;
-module.exports.getCard = getCard;
+module.exports.getCard = fabric.getCard;
 module.exports.getClosestPerson = getClosestPerson;
 module.exports.addCard = addCard;
 module.exports.updateCard = updateCard;
-module.exports.canAddSecure = canAddSecure;
-
-module.exports.getSecuredContacts = getSecuredContacts;
 
 // Urls
 module.exports.sanitizeId = sanitizeId;
@@ -373,8 +266,6 @@ module.exports.queryAll = fabric.queryAll;
 module.exports.recordAccess = recordAccess;
 
 module.exports.secure = secure;
-module.exports.makeSecure = makeSecure;
-module.exports.revokeSecure = revokeSecure;
 
 module.exports.fabric = fabric;
 

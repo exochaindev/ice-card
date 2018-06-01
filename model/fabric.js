@@ -4,9 +4,13 @@
 *
 * SPDX-License-Identifier: Apache-2.0
 */
-/*
- * Chaincode Invoke
- */
+
+// This queries and invokes chaincode
+// AND provides helper functions that transform the archane array format of
+// Fabric arguments into a readable API
+// Nonetheless, it performs only database interaction, no logic, so many of its
+// methods are further abstracted by model/index.js
+// Besides in model/something, you shouldn't probably use this
 
 var Fabric_Client = require('fabric-client');
 var path = require('path');
@@ -91,7 +95,12 @@ function queryAll() {
   return query('queryAll');
 }
 function getCard(id) {
-  return query('getCard', [id]);
+  return query('getCard', [id]).then((card) => {
+    return JSON.parse(card);
+  }, (err) => {
+    // Fail silently. This can be checked, but most of the time, we don't care
+    return null;
+  });
 }
 async function getReferringCards(id) {
   let json = await query('getReferringCards', [id]);
@@ -198,12 +207,22 @@ async function sendTransaction(func, args) {
   }
 }
 
-async function addCard(cardInfo) {
-  return sendTransaction('addCard', cardInfo);
+async function addCard(card) {
+  let id = card.contacts.you.key;
+  var fabricData = [
+    id,
+    JSON.stringify(card),
+  ];
+  return sendTransaction('addCard', fabricData);
+}
+
+async function updateCard(card) {
+  let id = card.contacts.you.key;
+  return sendTransaction('updateCard', [id, JSON.stringify(card)]);
 }
 
 async function recordAccess(accessInfo) {
-  return sendTransaction('recordAccess', [accessInfo]);
+  return sendTransaction('recordAccess', [JSON.stringify(accessInfo)]);
 }
 
 module.exports.query = query;
@@ -211,6 +230,7 @@ module.exports.queryAll = queryAll;
 module.exports.getCard = getCard;
 module.exports.getReferringCards = getReferringCards;
 module.exports.addCard = addCard;
+module.exports.updateCard = updateCard;
 module.exports.recordAccess = recordAccess;
 module.exports.sendTransaction = sendTransaction;
 
