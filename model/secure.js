@@ -130,9 +130,7 @@ function addAsymmetric(card, object, key, value) {
 
 async function escrow(card, password, needed) {
   let id = card.contacts.you.key;
-  console.log(id);
   let intoCards = await model.getSecuredContacts(card.contacts);
-  console.log(intoCards);
   let passwordHex = secrets.str2hex(password);
   let shares = secrets.share(passwordHex, intoCards.length, needed);
   for (let i in intoCards) {
@@ -141,7 +139,6 @@ async function escrow(card, password, needed) {
     if (!into.asymmetric.escrow) {
       into.asymmetric.escrow = {};
     }
-    console.log(share);
     addAsymmetric(into, into.asymmetric.escrow, id, share);
     model.updateCard(into);
   }

@@ -48,7 +48,6 @@ function getUser() {
     // get the enrolled user from persistence, this user will sign all requests
     return fabric_client.getUserContext('user1', true).then((user_from_store) => {
       if (user_from_store && user_from_store.isEnrolled()) {
-        console.log('Successfully loaded user1 from persistence');
         return user_from_store;
       } else {
         throw new Error('Failed to get user1.... run registerUser.js');
@@ -103,7 +102,6 @@ async function sendTransaction(func, args) {
   let user = await getUser();
   // get a transaction id object based on the current user assigned to fabric client
   tx_id = fabric_client.newTransactionID();
-  console.log('Assigning transaction_id: ', tx_id._transaction_id);
 
   // createCar chaincode function - requires 5 args, ex: args: ['CAR12', 'Honda', 'Accord', 'Black', 'Tom'],
   // changeCarOwner chaincode function - requires 2 args , ex: args: ['CAR10', 'Dave'],
@@ -126,14 +124,10 @@ async function sendTransaction(func, args) {
   if (proposalResponses && proposalResponses[0].response &&
     proposalResponses[0].response.status === 200) {
     isProposalGood = true;
-    console.log('Transaction proposal was good');
   } else {
     console.error('Transaction proposal was bad');
   }
   if (isProposalGood) {
-    console.log(util.format(
-      'Successfully sent Proposal and received ProposalResponse: Status - %s, message - "%s"',
-      proposalResponses[0].response.status, proposalResponses[0].response.message));
 
     // build up the request for the orderer to have the transaction committed
     var request = {
@@ -177,7 +171,6 @@ async function sendTransaction(func, args) {
           console.error('The transaction was invalid, code = ' + code);
           resolve(return_status); // we could use reject(new Error('Problem with the tranaction, event status ::'+code));
         } else {
-          console.log('The transaction has been committed on peer ' + event_hub._ep._endpoint.addr);
           resolve(return_status);
         }
       }, (err) => {
@@ -188,18 +181,15 @@ async function sendTransaction(func, args) {
     promises.push(txPromise);
 
     return Promise.all(promises).then((results) => {
-      console.log('Send transaction promise and event listener promise have completed');
       // check the results in the order the promises were added to the promise all list
       if (results && results[0] && results[0].status === 'SUCCESS') {
-        console.log('Successfully sent transaction to the orderer.');
       } else {
         console.error('Failed to order the transaction. Error code: ' + response.status);
       }
 
       if(results && results[1] && results[1].event_status === 'VALID') {
-        console.log('Successfully committed the change to the ledger by the peer');
       } else {
-        console.log('Transaction failed to be committed to the ledger due to ::'+results[1].event_status);
+        console.error('Transaction failed to be committed to the ledger due to ::'+results[1].event_status);
       }
     });
   } else {
