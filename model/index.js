@@ -345,7 +345,10 @@ function getId() {
 }
 // In the moment, punctuation is hard to describe, make room for errors
 function sanitizeId(id) {
-  return id.replace(/[_ +'"]/g, '-');
+  let rv = id;
+  rv = rv.replace('.json', '');
+  rv = rv.replace(/[_ +'"]/g, '-');
+  return rv;
 }
 
 // Cards
