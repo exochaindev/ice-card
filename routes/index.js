@@ -109,12 +109,12 @@ router.get('/:uid/make-secure', function(req, res, next) {
   });
 });
 router.post('/:uid/make-secure', function(req, res, next) {
-  model.makeSecure(req.uid, req.card, req.body.password);
+  model.makeSecure(req.card, req.body.password);
   res.send("cool, you just did absolutely nothing") // (TODO)
 });
 router.get('/:uid/revoke-secure', function(req, res, next) {
   // TODO: This should require a password
-  model.revokeSecure(req.uid, req.card);
+  model.revokeSecure(req.card);
   res.send('Secure access has been revoked.')
 });
 

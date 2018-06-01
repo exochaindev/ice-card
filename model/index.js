@@ -219,7 +219,7 @@ async function getClosestPerson(compareTo) {
 function canAddSecure(card) {
   return card.secureExpires > Date.now();
 }
-function revokeSecure(id, card) {
+function revokeSecure(card) {
   // Don't allow security to be revoke (=data deleted) by just anyone
   if (!card.secure/* || Some nebulous idea of "authenticated" (TODO) */)
   {
@@ -229,7 +229,7 @@ function revokeSecure(id, card) {
     updateCard(card);
   }
 }
-async function makeSecure(id, card, password) {
+async function makeSecure(card, password) {
   card.secureExpires = 0; // No more making secure / changing password, obviously!
   // The secure field is entirely encrypted, every time with AES. This keeps
   // metadata secure
