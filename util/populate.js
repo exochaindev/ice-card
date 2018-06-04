@@ -16,7 +16,7 @@ fs.readFile('./util/test-card.json', 'utf-8', async (err, data) => {
       model.referrerCard(card.contacts.you.key, entry).then((referred) => {
 	model.addCard(referred).then((id) => {
 	  if (secureCount > 0) {
-	    model.makeSecure(referred, 'password');
+	    model.secure.makeSecure(referred, 'password');
 	    secureCount--;
 	  }
 	});

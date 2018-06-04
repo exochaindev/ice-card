@@ -41,6 +41,8 @@ function swapEntry(card, one, two) {
   card[two] = temp;
 }
 
+var getCard = fabric.getCard;
+
 function referrerCard(id, type) {
   return getCard(id).then((card) => {
     if (type) {
@@ -86,7 +88,7 @@ async function addCard(data) {
   return fabric.addCard(data).then((response) => {
     // Send viral-factor emails. This helps us complete escrow and gain users
     email.sendCardEmails(data);
-    return id; // Need that ID to redirect
+    return data.contacts.you.key; // Need that ID to redirect
   }, (err) => {
     throw 'Could not add card: ' + err
   });
@@ -250,7 +252,7 @@ function sanitizeId(id) {
 // Cards
 module.exports.parseCard = parseCard;
 module.exports.referrerCard = referrerCard;
-module.exports.getCard = fabric.getCard;
+module.exports.getCard = getCard;
 module.exports.getClosestPerson = getClosestPerson;
 module.exports.addCard = addCard;
 module.exports.updateCard = updateCard;
