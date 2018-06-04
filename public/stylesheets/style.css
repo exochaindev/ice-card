@@ -7,7 +7,7 @@ a {
   color: #00B7FF;
 }
 
-.card {
+.card, .wrap {
   max-width: 500px;
 }
 
@@ -17,16 +17,27 @@ a {
 
 input {
   box-sizing: border-box;
+  margin: 10px;
   padding: 10px;
+  width: 100%;
+}
+
+.card input {
+  box-sizing: border-box;
   /* Doesn't support calc */
   width: 45%;
   margin: 5px 2%;
   /* Supports calc */
-  width: calc(45% - 40px);
+  width: calc(50% - 43px);
   margin: 10px calc(20px);
 }
+.clear-group {
+  position: relative;
+  left: 515px;
+  bottom: 65px;
+}
 
-input[type="submit"] {
+.card input[type="submit"] {
   /* Doesn't support calc */
   width: 95%;
   margin: 5px 2%;
@@ -79,7 +90,8 @@ input[type="submit"] {
 }
 .back {
   width: 3.5in;
-  height: 2.5in;
+  /* Don't specify height, even though we should, because Firefox has a bug
+   * that incorrectly calculates height on PRINT media */
   padding: 5px;
   box-sizing: border-box;
   column-count: 2;
@@ -87,15 +99,10 @@ input[type="submit"] {
   overflow: hidden;
 }
 .back h2 {
-  font-size: 14px;
+  font-size: 12px;
 }
-.back h2.name {
-  font-size: 15px;
-}
-
 .back p {
   font-size: 12px;
-  overflow: wrap;
 }
 
 #print-button-container {
@@ -110,13 +117,20 @@ input[type="submit"] {
   body {
     padding: 10px;
   }
-  input {
+  .card input {
     /* Doesn't support calc */
     width: 95%;
     margin: 5px 2%;
     /* Supports calc */
     width: calc(95% - 20px);
     margin: 5px calc(10px);
+  }
+}
+@media screen and (max-width: 615px) {
+  .clear-group {
+    display: block;
+    position: static;
+    margin: 10px 25px;
   }
 }
 

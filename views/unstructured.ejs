@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <% include head.ejs %>
+  </head>
+  <body>
+    <h1><%- title %></h1>
+    <%
+      function nest(o) {
+        %><ul><%
+        for (var key in o) {
+          %><li><%- key %><br /><%
+          var val = o[key];
+          if (typeof(val) == typeof({})) {
+            nest(val);
+          }
+          else {
+            %><%- val %><%
+          }
+          %></li><%
+        }
+        %></ul><%
+      }
+      nest(data);
+    %>
+  </body>
+</html>

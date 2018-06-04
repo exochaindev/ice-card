@@ -8,14 +8,24 @@
   "dependencies": {
     "cookie-parser": "~1.4.3",
     "debug": "~2.6.9",
+    "eff-diceware-passphrase": "^1.0.0",
     "ejs": "~2.5.7",
+    "email-templates": "^3.6.1",
     "express": "~4.16.0",
-    "fabric-ca-client": "^1.1.0",
-    "fabric-client": "^1.1.0",
+    "fabric-ca-client": "^1.1.2",
+    "fabric-client": "^1.1.2",
     "gfycat-style-urls": "^1.0.2",
     "http-errors": "~1.6.2",
     "human-readable-ids": "^1.0.3",
     "morgan": "~1.9.0",
-    "qr-image": "^3.2.0"
+    "node-forge": "^0.7.5",
+    "qr-image": "^3.2.0",
+    "qs": "^6.5.2",
+    "secrets.js-grempe": "^1.1.0",
+    "string-similarity": "^1.2.0"
+  },
+  "devDependencies": {
+    "ejs-lint": "^0.3.0",
+    "timekeeper": "^2.1.2"
   }
 }

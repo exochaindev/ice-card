@@ -1,0 +1,27 @@
+<html>
+  <head>
+    <% include ../style.ejs %>
+  </head>
+  <body>
+    <h1>You can now split proxy with a quorum of your friends</h1>
+
+    <p>
+      <%- count %> people you trust have made secure ICE Cards linked to you.
+      Now you can split your control of your ICE Card data to a quorum of these
+      people. In the case you lose your password, they can summon it up; in the
+      case of your death, they can confirm your death and release or delete your
+      records; and more.
+    </p>
+
+    <p>
+      <b>There's one last step</b> to enable this feature. All you have to do is
+      <a href="<%- url %>/complete-escrow">confirm the process</a> with your
+      password.
+    </p>
+
+    <h2><a href="<%- url %>/complete-escrow">Confirm process</a></h2>
+
+    <p>Or <a href="<%- url %>/revoke-escrow">never split proxy</a>.</p>
+  </body>
+</html>
+

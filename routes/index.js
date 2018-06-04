@@ -1,13 +1,21 @@
 'use strict';
 
-var express = require('express');
-var router = express.Router();
+const express = require('express');
 const model = require('../model/index.js');
+const c = require('./common.js');
 const qr = require('qr-image');
 
-/* GET home page. */
-router.get('/', function(req, res, next) {
-  res.render('make-card', {  });
+var router = express.Router();
+
+router.get('/', async function(req, res, next) {
+  let card = {};
+  if (req.query.referrer) {
+    card = await model.referrerCard(req.query.referrer, req.query.contact);
+    if (card) {
+      card = card.contacts;
+    }
+  }
+  res.render('make-card', { existing: card });
 });
 
 router.post('/', function(req, res, next) {
@@ -18,38 +26,44 @@ router.post('/', function(req, res, next) {
   });
 });
 
+router.get('/:uid', c.needsCard);
+router.get('/:uid/print', c.needsCard);
+
 router.get('/:uid', function(req, res, next) {
   model.recordAccess(req);
-  let uid = model.sanitizeId(req.params.uid);
-  model.getCard(uid).then((contacts) => {
-    res.render('view-card', { contacts: contacts });
-  }, (err) => {
-    res.render('debug', { debugString: "Error:\n" + err });
+  let canAddSecure = model.secure.canAddSecure(req.card);
+  let url = model.getCardUrl(req.uid);
+  res.render('view-card', {
+    contacts: req.card.contacts,
+    uid: req.uid,
+    canAddSecure: canAddSecure,
+    url: url,
   });
 });
-
 router.get('/:uid/print', function(req, res, next) {
-  let uid = model.sanitizeId(req.params.uid);
+  let uid = req.uid;
   // On printed card, urls should be absolute url
   let url = model.getCardUrl(uid, true);
+  let cardUrl = model.getCardUrl(uid);
   let qrUrl = model.getQrUrl(uid);
-  model.getCard(uid).then((contacts) => {
-    res.render('print-card', { contacts: contacts, url: url, qrUrl: qrUrl });
-  }, (err) => {
-    res.render('debug', { debugString: "Error:\n" + err });
+  res.render('print-card', {
+    contacts: req.card.contacts,
+    url: url,
+    qrUrl: qrUrl,
+    cardUrl: cardUrl,
   });
 });
 
 router.get('/:uid/qr.:ext', function(req, res, next) {
-  let uid = model.sanitizeId(req.params.uid);
-  let url = model.getCardUrl(uid);
+  let uid = req.uid;
+  let url = model.getCardUrl(uid, true, true);
   let qrSvg = qr.image(url, {
     type: req.params.ext,
     size: 6,
     margin: 0,
   });
   qrSvg.pipe(res);
-})
+});
 
 module.exports = router;
 

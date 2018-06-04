@@ -1,0 +1,22 @@
+<html>
+  <head>
+    <% include ../style.ejs %>
+  </head>
+  <body>
+    <h1>
+      Your <a href="<%- viewUrl %>">ICE card</a> has been made!</a>
+    </h1>
+
+    <p>
+      <a href="<%- printUrl %>">Print another copy</a>.
+    </p>
+
+    <p>
+      <a href="<%- viewUrl %>/make-secure">Secure your card</a>. Securing your
+      card allows you to enter sensitive info, re-generate cards without
+      printing a new one, and more.
+    </p>
+
+  </body>
+</html>
+

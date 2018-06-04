@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <% title = "Protect your emergency info" %>
+    <% include head.ejs %>
+    <script>
+      function init() {
+        let pwd = document.getElementById('password');
+        let confirm = document.getElementById('confirm');
+        toggleable(pwd);
+        toggleable(confirm);
+        confirm.addEventListener('input', changed)
+        document.getElementById('fill').addEventListener('click', fill);
+      }
+      function fill() {
+        var rec = document.getElementById('fill').innerHTML;
+        function doFill(el) {
+          el.value = rec;
+          confirm.value = el.value;
+          showPassFunc(el)();
+          let showFor = 1000;
+          setTimeout(hidePassFunc(el), showFor);
+        }
+        let pwd = document.getElementById('password');
+        let confirm = document.getElementById('confirm');
+        doFill(pwd);
+        doFill(confirm);
+      }
+      function toggleable(el) {
+        el.addEventListener('mouseover', showPassFunc(el));
+        el.addEventListener('mouseout', hidePassFunc(el));
+      }
+      function hidePassFunc(el) {
+        return function() {
+          el.type = 'password';
+        }
+      }
+      function showPassFunc(el) {
+        return function() {
+          el.type = 'text';
+        }
+      }
+      function check() {
+        let orig = document.getElementById('password');
+        let conf = document.getElementById('confirm');
+        let valid = (orig.value == conf.value);
+        if (valid) {
+          conf.setCustomValidity('');
+        }
+        else {
+          conf.setCustomValidity('Check that these match');
+        }
+      }
+      var cancel;
+      function changed() {
+        let conf = document.getElementById('confirm');
+        conf.setCustomValidity('');
+        var pauseTimeout = 500;
+        if (cancel) {
+          clearTimeout(cancel);
+        }
+        cancel = setTimeout(check, pauseTimeout);
+      }
+      window.onload = init;
+    </script>
+  </head>
+  <body>
+    <p>
+      <h1>Secure your card</h1>
+    </p>
+    <div class="wrap">
+      <% if (!cannotAdd) { %>
+        <form method="post" action="">
+          <input id="password" name="password" type="password" placeholder="Add a password" />
+          <input id="confirm" name="confirm" type="password" placeholder="Confirm password" />
+          <input type="submit" value="Secure" />
+        </form>
+        <p>
+          This password should be secure. It can be recovered with your friends.
+          How about
+          <a id="fill" href="javascript:void(0);" onclick="fill();"><%- recommendPwd %></a>?
+        </p>
+        <p>
+          Securing your card allows you to
+        </p>
+        <ul>
+          <li>Change access privileges without printing a new card</li>
+          <li>Add extended PACE: Physician, Attorney, CPO, and Escrow</li>
+          <li>Connect medical records and more</li>
+        </ul>
+        <p>
+          <a href="<%- url %>/revoke-secure">Nevermind, I never want to secure this card</a>
+        </p>
+      <% } else { %>
+        <p class="error">
+          Your 24 hours to add security to this card have elapsed! You can only
+          <a href="<%- newCardUrl %>">make a new card using this data</a>.
+        <p>
+      <% } %>
+    </div>
+  </body>
+</html>

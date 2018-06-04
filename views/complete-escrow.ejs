@@ -1,0 +1,47 @@
+<%# Params:
+  * url = prot://domain/cool-id-10
+  * cannotAdd = true if escrow has been revoked
+  * newCardUrl = prot://domain/?referrer=cool-id-10
+    * Only necessary if cannotAdd is true
+  Renders:
+    A page describing escrow with a password field. Submitting POSTs to same
+    path with password.
+%>
+<!DOCTYPE html>
+<html>
+  <head>
+    <% var title = "Finish the escrow process" %>
+    <% include head.ejs %>
+  </head>
+  <body>
+    <p>
+      <h1><%- title %></h1>
+    </p>
+    <div class="wrap">
+      <% if (!cannotAdd) { %>
+        <form method="post" action="">
+          <input id="password" name="password" type="password" placeholder="Password" />
+          <input type="submit" value="Escrow card" />
+        </form>
+        <p>
+          Escrow allows you to
+        </p>
+        <ul>
+          <li>Recover your password if lost</li>
+          <li>Make shared contingency plans</li>
+          <li>Please someone other than me write this copy</li>
+          <li>More</li>
+        </ul>
+        <p>
+          <a href="<%- url %>/revoke-escrow">Nevermind, I never want to escrow this card</a>
+        </p>
+      <% } else { %>
+        <p class="error">
+          You previously asked that the ability to escrow be removed. You can
+          only <a href="<%- newCardUrl %>">make a new card using this data</a>
+          to complete the escrow.
+        <p>
+      <% } %>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,24 @@
+<%#
+  Params:
+    * entry, a card.contacts.you, for example
+  Renders:
+    * <p>s with each piece of data
+%>
+
+<%
+  var fields = [
+    "name",
+    "email",
+    "phone",
+    "address",
+    "key",
+  ];
+
+  fields.forEach((field) => {
+    var value = entry[field];
+%>
+    <p><%- value %></p>
+<%
+  });
+%>
+

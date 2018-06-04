@@ -1,3 +1,9 @@
+# --- Important security stuff!! ---
+
+# Never commit secure-config.json, because it has sensitive data in it!
+# Instead, dummy-secure-config.json is commited to be copied and edited appropriately
+secure-config.json
+
 # --- Fabric stuff ---
 
 hfc-key-store

@@ -24,7 +24,7 @@ let Chaincode = class {
     let ret = stub.getFunctionAndParameters();
     console.info(ret);
 
-    let method = this[ret.fcn];
+    let method = this[ret.fcn].bind(this);
     if (!method) {
       console.error('no function of name:' + ret.fcn + ' found');
       throw new Error('Received unknown function ' + ret.fcn + ' invocation');
@@ -54,6 +54,62 @@ let Chaincode = class {
     });
   }
 
+  // Get all cards with contacts that have an id that corresponds to args[0]
+  async getReferringCards(stub, args) {
+
+    let id = args[0];
+
+    [
+      {key: id}
+    ]
+
+    let query = {
+      selector: {
+        contacts: {
+          "$or": [
+            {     primary: {key:id} },
+            { alternative: {key:id} },
+            { contingency: {key:id} },
+            {   emergency: {key:id} },
+          ]
+        }
+      }
+    };
+
+    let queryString = JSON.stringify(query);
+
+    let iterator = await stub.getQueryResult(queryString);
+
+    // This should be in a function because it duplicates queryRange
+    // BUT fabric makes this a TOTAL PAIN so I'm gonna leave it this way unless
+    // I have to change it
+    let allResults = [];
+    while (true) {
+      let res = await iterator.next();
+
+      if (res.value && res.value.value.toString()) {
+        let jsonRes = {};
+        console.log(res.value.value.toString('utf8'));
+
+        jsonRes.Key = res.value.key;
+        try {
+          jsonRes.Record = JSON.parse(res.value.value.toString('utf8'));
+        } catch (err) {
+          console.log(err);
+          jsonRes.Record = res.value.value.toString('utf8');
+        }
+        allResults.push(jsonRes);
+      }
+      if (res.done) {
+        console.log('end of data');
+        await iterator.close();
+        console.info(allResults);
+        return Buffer.from(JSON.stringify(allResults));
+      }
+    }
+
+  }
+
   async initLedger(stub, args) {
     console.info('============= START : Initialize Ledger ===========');
     // Nothing initial needed
@@ -63,19 +119,14 @@ let Chaincode = class {
   async addCard(stub, args) {
     console.info('============= START : Create Car ===========');
 
-    var card = { // TODO: need? is docType a fabric thing or a fabcar thing?
-      docType: 'card',
-      json: args[1],
-    };
-
     await stub.putState(args[0], Buffer.from(args[1]));
     console.info('============= END : Create Car ===========');
   }
 
-  async queryAll(stub, args) {
+  async queryRange(stub, args) {
 
-    let startKey = '0';
-    let endKey = 'z';
+    let startKey = args[0];
+    let endKey = args[1];
 
     let iterator = await stub.getStateByRange(startKey, endKey);
 
@@ -104,19 +155,18 @@ let Chaincode = class {
       }
     }
   }
+  async queryAllCards(stub, args) {
+    return await stub.invokeChaincode('fabcar', ['queryRange', 'a', 'z']);
+  }
+  async queryAll(stub, args) {
+    return await stub.invokeChaincode('fabcar', ['queryRange', '0', 'z']);
+  }
 
-  async changeCarOwner(stub, args) {
-    console.info('============= START : changeCarOwner ===========');
+  async updateCard(stub, args) {
     if (args.length != 2) {
-      throw new Error('Incorrect number of arguments. Expecting 2');
+      throw new Error('Incorrect number of arguments. Expecting id and card as JSON');
     }
-
-    let carAsBytes = await stub.getState(args[0]);
-    let car = JSON.parse(carAsBytes);
-    car.owner = args[1];
-
-    await stub.putState(args[0], Buffer.from(JSON.stringify(car)));
-    console.info('============= END : changeCarOwner ===========');
+    await stub.putState(args[0], Buffer.from(args[1]));
   }
 
   async recordAccess(stub, args) {

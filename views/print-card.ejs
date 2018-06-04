@@ -28,6 +28,7 @@
         <div class="col-left">
           <p>Scan the QR code or enter the URL:</p>
           <p><%- url %></p>
+          <p>Info printed on back of card.</p>
         </div>
         <div class="col-right">
           <img src="<%- qrUrl %>" alt="qr-code" />
@@ -61,6 +62,12 @@
     <p>
       Print this page and cut the card out. Fold in half on the dashed line,
       and put it in the front of your wallet, right behind your ID.
+    </p>
+    <p>
+      <a href="<%- cardUrl %>/make-secure">Secure your card</a>. <b>You only have 24 hours to do this</b>.
+    </p>
+    <p>
+      Or <a href="<%- cardUrl %>/revoke-secure">never secure this card</a>.
     </p>
   </body>
 </html>
