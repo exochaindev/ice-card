@@ -17,7 +17,7 @@ var path = require('path');
 var util = require('util');
 var os = require('os');
 
-var chaincodeId = 'ice-card';
+var chaincodeId = 'icecard';
 
 //
 var fabric_client = new Fabric_Client();
