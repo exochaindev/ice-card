@@ -1,4 +1,4 @@
-sudo ./start-fabric-new.sh node
-node enrollAdmin
-node registerUser
+sudo ./start-fabric.sh
+node enroll-admin
+node register-user
 

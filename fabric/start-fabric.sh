@@ -15,14 +15,13 @@ export MSYS_NO_PATHCONV=1
 starttime=$(date +%s)
 LANGUAGE=node
 projectname='icecard'
-# export COMPOSE_PROJECT_NAME=net
 export CC_SRC_PATH=/opt/gopath/src/github.com
 
 # clean the keystore
 rm -rf ./hfc-key-store
 
 # launch network; create channel and join peer to channel
-./start.sh
+./start-container.sh
 
 # Now launch the CLI container in order to install, instantiate chaincode
 # and prime the ledger with our 10 cars
