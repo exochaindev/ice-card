@@ -1,6 +1,7 @@
 {
-  "mail": {
-    "user": "youremail@email.email",
-    "password": "insecure_passwords"
+  "email": {
+    "host": "smtp.gmail.com",
+    "user": "youremail@email.com",
+    "password": "yourpassword"
   }
 }
