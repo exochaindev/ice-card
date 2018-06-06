@@ -57,6 +57,7 @@ services:
       - CORE_PEER_LOCALMSPID=Org1MSP
       - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/msp/peer/
       - CORE_PEER_ADDRESS=peer0.org1.example.com:7051
+      - CORE_VM_DOCKER_ATTACHSTDOUT=true
       # # the following setting starts chaincode containers on the same
       # # bridge network as the peers
       # # https://docs.docker.com/compose/networking/
@@ -119,7 +120,7 @@ services:
         - ./crypto-config:/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/
     networks:
         - basic
-    #depends_on:
+    # depends_on:
     #  - orderer.example.com
     #  - peer0.org1.example.com
     #  - couchdb

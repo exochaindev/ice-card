@@ -6,6 +6,7 @@
 #
 # Exit on first error
 set -e
+set -o xtrace
 
 version=`date +%s`
 
