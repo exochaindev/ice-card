@@ -20,6 +20,8 @@ const protocol = 'http://';
 // because HTML forms don't support structured input
 function parseCard(form) {
   let card = {};
+  card.notes = form.notes;
+  delete form.notes;
   card.contacts = {};
   let contacts = card.contacts;
   Object.keys(form).forEach(function(key) {
