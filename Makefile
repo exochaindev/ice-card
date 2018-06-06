@@ -6,7 +6,7 @@ dev: network server
 	node util/populate.js
 
 network:
-	cd fabric && ./startNetwork.sh
+	cd fabric && ./start.sh
 
 server: node_modules
 ifndef NODEMON

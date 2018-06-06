@@ -13,8 +13,6 @@ and that makes me scared.
  - [Hyperledger Fabric](https://hyperledger-fabric.readthedocs.io/en/release-1.1/samples.html#binaries)
    binaries, which have
    [their own dependencies](https://hyperledger-fabric.readthedocs.io/en/release-1.1/prereqs.html)
- - [fabric-samples](https://hyperledger-fabric.readthedocs.io/en/release-1.1/samples.html).
-   This dependency is hanging by a string; I'm working on removing it right now
  - A shell (bash/etc). I have no idea how you would run this on Windows / etc
 
 ## Building
