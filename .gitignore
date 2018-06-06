@@ -7,7 +7,6 @@ secure-config.json
 # --- Fabric stuff ---
 
 hfc-key-store
-crypto-config/
 
 # --- Node.js stuff ---
 
