@@ -1,20 +1,19 @@
 NODEMON := $(shell command -v nodemon 2> /dev/null)
 
 all: first run
-
 run: network server
+dev: network server populate
 
-first:
-	npm i
-	cp -i dummy-secure-config.json secure-config.json
-
-dev: network server
-	node util/populate.js
+first: node_modules
+	cp -n dummy-secure-config.json secure-config.json
 
 network:
 	cd fabric && ./start.sh
 
-server: node_modules
+populate:
+	node util/populate.js
+
+server:
 ifndef NODEMON
 	npm start
 endif
