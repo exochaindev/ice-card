@@ -49,10 +49,10 @@ router.get('/:uid/revoke-secure', function(req, res, next) {
 router.all('/:uid/complete-escrow', function(req, res, next) {
   let can = req.card.canEscrow;
   if (!can) {
-	res.status(403).render('complete-escrow', {
-	  cannotAdd: true,
-	  newCardUrl: model.getReferredUrl(req.params.uid),
-	});
+    res.status(403).render('complete-escrow', {
+      cannotAdd: true,
+      newCardUrl: model.getReferredUrl(req.params.uid),
+    });
   }
   next();
 });
@@ -60,8 +60,8 @@ router.get('/:uid/complete-escrow', function(req, res, next) {
   // TODO: Check for hasEscrow and talk about it
   let cannotAdd = !req.card.canEscrow;
   res.render('complete-escrow', {
-	url: model.getCardUrl(req.params.uid),
-	cannotAdd: false,
+    url: model.getCardUrl(req.params.uid),
+    cannotAdd: false,
   });
 });
 router.post('/:uid/complete-escrow', function(req, res, next) {
@@ -73,9 +73,9 @@ router.post('/:uid/complete-escrow', function(req, res, next) {
 router.get('/:uid/revoke-escrow', function(req, res, next) {
   let cannotAdd = !req.card.canEscrow;
   res.render('revoke-escrow', {
-	url: model.getCardUrl(req.params.uid),
-	cannotAdd: cannotAdd,
-	newCardUrl: model.getReferredUrl(req.params.uid),
+    url: model.getCardUrl(req.params.uid),
+    cannotAdd: cannotAdd,
+    newCardUrl: model.getReferredUrl(req.params.uid),
   });
 });
 router.post('/:uid/revoke-escrow', async function(req, res, next) {
