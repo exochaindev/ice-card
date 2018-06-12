@@ -71,7 +71,7 @@ async function makeSecure(card, password) {
 
   // TODO: Check if we can already share our key (requires concept of identity)
   encryptCard(card, password);
-  model.updateCard(card);
+  await model.updateCard(card);
 }
 
 function encrypt(plaintext, password) {
