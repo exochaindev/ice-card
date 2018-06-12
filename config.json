@@ -1,4 +1,5 @@
 {
   "canonicalDomain": "localhost:3000",
-  "secureExpiresHours": "24"
+  "secureExpiresHours": "24",
+  "emailPreviews": true
 }
