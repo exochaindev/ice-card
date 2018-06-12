@@ -186,16 +186,12 @@ function encryptAsymmetric(key, value) {
   return forge.util.encode64(key.encrypt(value));
 }
 function decryptAsymmetric(key, value) {
-  console.log(value);
   return key.decrypt(forge.util.decode64(value));
 }
 function addAsymmetric(card, object, key, value) {
   if (card.encrypted) {
-    console.log(value);
     let keypair = getKeyPairFromPems(card.publicKey);
     let encrypted = encryptAsymmetric(keypair.publicKey, value);
-    console.log("V")
-    console.log(encrypted);
     object[key] = encrypted;
   }
   else {
@@ -211,7 +207,7 @@ async function escrow(card, password, needed) {
   let shares = secrets.share(passwordHex, intoCards.length, needed);
   for (let i in intoCards) {
     let into = intoCards[i];
-    let share = secrets.hex2str(shares[i]); // Don't dual-encode
+    let share = shares[i];
     if (!into.asymmetric.escrow) {
       into.asymmetric.escrow = {};
     }
