@@ -10,8 +10,21 @@ const model = require('./index.js');
 // - Public encrypted databases
 // - JSON
 const cipherType = 'aes192';
+const passwordHasher = crypto.createHash('sha256');
 
 const secrets = require('secrets.js-grempe');
+
+// This password hash is NOT SAFE. It is NOT A TRADITIONAL PASSWORD HASH The
+// password is not used for authentication (because everything is encrypted),
+// so it is not merely hashed and compared. In that case I would use bcrypt /
+// etc. The password is only hashed to make it harder to crack (read: longer)
+// as well as to avoid awkward or dangerous (=re-used) passwords recovered in
+// escrow
+// TODO: Actually use this
+function hashPassword(clear) {
+  passwordHasher.update(clear);
+  return passwordHasher.digest('hex');
+}
 
 async function makeSecure(card, password) {
   card.secureExpires = 0; // No more making secure / changing password, obviously!
