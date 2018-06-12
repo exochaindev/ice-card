@@ -90,7 +90,7 @@ function decrypt(ciphertext, password) {
 // Find only leaves (bottom-level values) and sets it to callback(leaf)
 function changeLeaves(obj, callback) {
   for (let key in obj) {
-    let value = key;
+    let value = obj[key];
     if (typeof(value) == typeof({})) {
       changeLeaves(value, callback);
     }
@@ -113,7 +113,7 @@ function encryptCard(card, password) {
   let plaintextJSON = JSON.stringify(card.secure);
   card.secure = encrypt(plaintextJSON, password);
   let keypair = getKeyPairFromPems(card.publicKey, card.privateKeyEncrypted, password);
-  changeLeaves(card.symmetric, function(val) {
+  changeLeaves(card.asymmetric, function(val) {
     return encryptAsymmetric(keypair.publicKey, val);
   });
   card.encrypted = true;
@@ -132,11 +132,22 @@ function decryptCard(card, password) {
     throw 'Could not parse card. Most likely reason: invalid password. ' + err
   }
   let keypair = getKeyPairFromPems(card.publicKey, card.privateKeyEncrypted, password);
-  changeLeaves(card.symmetric, function(val) {
+  changeLeaves(card.asymmetric, function(val) {
     return decryptAsymmetric(keypair.privateKey, val);
   });
   card.encrypted = false;
   return card; // Modifies in place as always, but return it for convenience
+}
+// Decrypt a piece of escrow
+function decryptPiece(card, otherId, password) {
+  decryptCard(card, password);
+  if (!card.escrowRecombining) {
+    card.escrowRecombining = {};
+  }
+  card.escrowRecombining[otherId] = card.asymmetric.escrow[otherId];
+  console.log(card.escrowRecombining[otherId])
+  encryptCard(card, password);
+  model.updateCard(card);
 }
 
 function generateEncryptedKeyPair(password) {
@@ -172,15 +183,19 @@ function getKeyPairFromPems(publicPem, privateEncryptedPem, password) {
 }
 
 function encryptAsymmetric(key, value) {
-  return Buffer.from(key.encrypt(value)).toString('base64');
+  return forge.util.encode64(key.encrypt(value));
 }
 function decryptAsymmetric(key, value) {
-  return key.decrypt(Buffer.from(val, 'base64')).toString('ascii');
+  console.log(value);
+  return key.decrypt(forge.util.decode64(value));
 }
 function addAsymmetric(card, object, key, value) {
   if (card.encrypted) {
+    console.log(value);
     let keypair = getKeyPairFromPems(card.publicKey);
     let encrypted = encryptAsymmetric(keypair.publicKey, value);
+    console.log("V")
+    console.log(encrypted);
     object[key] = encrypted;
   }
   else {
@@ -196,7 +211,7 @@ async function escrow(card, password, needed) {
   let shares = secrets.share(passwordHex, intoCards.length, needed);
   for (let i in intoCards) {
     let into = intoCards[i];
-    let share = shares[i];
+    let share = secrets.hex2str(shares[i]); // Don't dual-encode
     if (!into.asymmetric.escrow) {
       into.asymmetric.escrow = {};
     }
@@ -235,6 +250,7 @@ async function getSecuredContacts(contacts) {
 module.exports = {
   encryptCard: encryptCard,
   decryptCard: decryptCard,
+  decryptPiece: decryptPiece,
   escrow: escrow,
   makeSecure: makeSecure,
   canAddSecure: canAddSecure,

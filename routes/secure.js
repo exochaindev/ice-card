@@ -12,6 +12,7 @@ router.all('/:uid/revoke-secure', c.needsCard);
 router.all('/:uid/complete-escrow', c.needsCard);
 router.all('/:uid/revoke-escrow', c.needsCard);
 router.post('/:uid/private', c.needsCard);
+router.post('/:uid/recombine/:target', c.needsCard);
 
 router.all('/:uid/make-secure', function(req, res, next) {
   let uid = req.uid;
@@ -91,6 +92,23 @@ router.post('/:uid/private', function(req, res, next) {
   res.render('unstructured', {
     title: 'All private data for ' + req.card.contacts.you.name,
     data: all,
+  });
+});
+
+router.get('/:uid/recombine/:target', async function(req, res, next) {
+  let who = await model.getCard(req.params.target);
+  res.render('recombine', {
+    done: false,
+	who: who,
+  });
+});
+router.post('/:uid/recombine/:target', async function(req, res, next) {
+  // let password = req.body.password;
+  model.secure.decryptPiece(req.card, req.params.target, req.body.password);
+  let who = await model.getCard(req.params.target);
+  res.render('recombine', {
+    done: true,
+    who: who,
   });
 });
 

@@ -1,0 +1,37 @@
+<%#
+  Parameters:
+   * who: the card of who we're recovering
+   * done: whether we have successfully recombined OUR PIECE and this is a confirmation message
+  Renders:
+   * if not done: a form and an explanation
+   * if done: a confirmation message
+%>
+<!DOCTYPE html>
+<html>
+  <head>
+    <% var title = "Recover " + who.contacts.you.name + "'s password" %>
+    <% include head.ejs %>
+  </head>
+  <body>
+    <p>
+      <h1><%- title %></h1>
+    </p>
+    <div class="wrap">
+      <% if (!done) { %>
+        <form method="post" action="">
+          <input id="password" name="password" type="password" placeholder="Enter your password to confirm" />
+          <input type="submit" value="Add my piece" />
+        </form>
+        <p>
+          By filling in the above you are helping to gain control of <%-
+          who.contacts.you.name %>'s account.
+        </p>
+      <% } else { %>
+        <p>
+          Successfully put your piece.
+        <p>
+      <% } %>
+    </div>
+  </body>
+</html>
+
