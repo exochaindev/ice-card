@@ -1,6 +1,7 @@
 'use strict';
 
 const model = require('./index.js');
+const cfg = require('../config.json');
 const secureCfg = require('../secure-config.json');
 
 const Email = require('email-templates');
@@ -24,7 +25,7 @@ const email = new Email({
     },
     root: './views/emails/',
   },
-  send: true,
+  preview: cfg.emailPreviews,
 });
 
 function sendCardEmails(card) {

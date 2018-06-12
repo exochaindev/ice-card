@@ -109,7 +109,7 @@ async function recordAccess(req) {
     'ua': req.get('User-Agent'),
     'url': req.originalUrl,
   };
-  await fabric.recordAccess(accessData);
+  await fabric.recordAccess(data);
 }
 
 async function getClosestPerson(compareTo) {
