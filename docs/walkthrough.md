@@ -1,3 +1,8 @@
+A walkthrough of ICE Card
+=========================
+
+## Card creation
+
 The homepage is a sign up form where you enter your contacts.
 
 ![The homepage shows email, phone, address, and phone fields for You,
@@ -28,6 +33,8 @@ recorded. In the future, the card will be restricted after the first visit.
 ![A page with all contact details in large
 font](./screenshots/03.0-view-card.png)
 
+## Security and escrow
+
 You can secure your card to enter more private data, such as extended PACE
 (Physician, Attorney, CPA, Estate, Escrow = other contacts).
 
@@ -52,4 +59,10 @@ reconstruct the key.
 ![A form asks that you enter your password to confirm the recombination of your
 piece of a key](./screenshots/06.0-combine.png)
 
+## Mobile
+
+You can scan cards directly from the app, which interfaces with the JSON API.
+
+![The app shows contacts, the QR code having been
+scanned](./screenshots/07.0-mobile.png)
 
