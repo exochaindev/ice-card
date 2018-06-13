@@ -46,8 +46,7 @@ let Chaincode = class {
 
     return stub.getState(id).then((cardData) => {
       if (!cardData || cardData.toString().length <= 0) {
-        console.error("Card " + id + " does not exist");
-        throw new Error("Card " + id + ' does not exist: ');
+        return null;
       }
       let card = cardData;
       return card;

@@ -98,7 +98,12 @@ function queryAll() {
 }
 function getCard(id) {
   return query('getCard', [id]).then((card) => {
-    return JSON.parse(card);
+    if (card) {
+      return JSON.parse(card);
+    }
+    else {
+      return null;
+    }
   }, (err) => {
     // Fail silently. This can be checked, but most of the time, we don't care
     return null;
