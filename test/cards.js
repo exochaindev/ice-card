@@ -67,4 +67,38 @@ describe('model', function() {
       assert.ok(!deletedCard);
     });
   });
+  describe('#moveId()', function() {
+    var newId;
+    var added;
+    var completed;
+    it('should return an id and two promises', function() {
+      let deepCopy = JSON.parse(JSON.stringify(testCard));
+      let res = model.moveId(deepCopy);
+      newId = res.id;
+      added = res.added;
+      completed = res.completed;
+    });
+    it('should place a nearly identical card in the new id', async function() {
+      this.timeout(5000);
+      // Wait for the card to complete
+      await added;
+      let card = await model.getCard(newId);
+      assert.ok(card);
+      // We know the key will have changed
+      card.contacts.you.key = testCard.contacts.you.key;
+      // We know the secureExpires has changed
+      card.secureExpires = testCard.secureExpires;
+      assert.deepEqual(card, testCard);
+    });
+    it('should delete the old card', async function() {
+      let oldCard = await model.getCard(id);
+      assert.ok(!oldCard);
+    });
+    it('should change all referrals', async function() {
+      // Wait for all cards to be updated
+      await completed;
+      let referrals = await model.fabric.getReferringCards(id);
+      assert.equal(referrals.length, 0);
+    })
+  });
 });

@@ -112,6 +112,53 @@ async function recordAccess(req) {
   await fabric.recordAccess(data);
 }
 
+// Returns an object:
+// {
+//   id: the generated ID the card was moved to
+//   added: a promise for having added the card so it can be redirected
+//   deleted: a promise for when the original card has been removed
+//   completed: a promise for *everything* that must happen for this card to be complete
+// }
+function moveId(card) {
+  const newId = getId();
+  const oldId = card.contacts.you.key;
+  card.contacts.you.key = newId;
+
+  let promises = [];
+  let added = addCard(card);
+  promises.push(added);
+
+  // For every card that refers to us, change the referred id
+  let getCardsP = fabric.getReferringCards(oldId)
+  promises.push(getCardsP);
+  getCardsP.then((referringCards) => {
+    // For each card
+    for (let referring of referringCards) {
+      referring = referring.Record;
+      // Because fabric didn't tell us which we have to find it
+      for (let type in referring.contacts) {
+        let entry = referring.contacts[type];
+        if (entry.key == oldId) {
+          // Update the key
+          entry.key = newId;
+          break;
+        }
+      }
+      promises.push(updateCard(referring));
+    }
+  });
+
+  let deleted = fabric.deleteCard(oldId);
+
+  return {
+    id: newId,
+    added: added,
+    deleted: deleted,
+    completed: Promise.all(promises),
+  };
+
+}
+
 async function getClosestPerson(compareTo) {
   // Because chaincode is a total pain to work with, it's 1000x times easier
   // to nest these, even thought it'd be better for them to be flat in an
@@ -259,6 +306,7 @@ module.exports.getCard = getCard;
 module.exports.getClosestPerson = getClosestPerson;
 module.exports.addCard = addCard;
 module.exports.updateCard = updateCard;
+module.exports.moveId = moveId;
 
 // Urls
 module.exports.sanitizeId = sanitizeId;
