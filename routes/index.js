@@ -34,8 +34,7 @@ router.get('/:uid', function(req, res, next) {
   let canAddSecure = model.secure.canAddSecure(req.card);
   let url = model.getCardUrl(req.uid);
   res.render('view-card', {
-    contacts: req.card.contacts,
-    uid: req.uid,
+    card: req.card,
     canAddSecure: canAddSecure,
     url: url,
   });
