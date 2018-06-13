@@ -1,9 +1,11 @@
 'use strict';
 
 const express = require('express');
+const genPass = require('eff-diceware-passphrase');
+
 const model = require('../model/index.js');
 const c = require('./common.js');
-const genPass = require('eff-diceware-passphrase');
+const cfg = require('../config.json');
 
 var router = express.Router();
 
@@ -66,8 +68,8 @@ router.get('/:uid/complete-escrow', function(req, res, next) {
   });
 });
 router.post('/:uid/complete-escrow', function(req, res, next) {
-  // TODO: Don't hardcode that 3
-  model.secure.escrow(req.card, req.body.password, 3);
+  // TODO: Get escrow count from web
+  model.secure.escrow(req.card, req.body.password, cfg.escrowNeeded);
   // TODO: template
   res.send('Well done!')
 });
@@ -104,11 +106,12 @@ router.get('/:uid/recombine/:target', async function(req, res, next) {
 });
 router.post('/:uid/recombine/:target', async function(req, res, next) {
   // let password = req.body.password;
-  model.secure.decryptPiece(req.card, req.params.target, req.body.password);
   let who = await model.getCard(req.params.target);
+  let answer = await model.secure.decryptPiece(req.card, who, req.body.password);
   res.render('recombine', {
     done: true,
     who: who,
+    answer: answer,
   });
 });
 

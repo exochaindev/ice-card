@@ -5,6 +5,7 @@ const crypto = require('crypto');
 const forge = require('node-forge');
 
 const model = require('./index.js');
+const cfg = require('../config.json');
 
 // AES is secure to known-plaintext, which is absolutely critical for:
 // - Public encrypted databases
@@ -56,7 +57,7 @@ async function makeSecure(card, password) {
         // Alright, we've got somebody who included us, who has a password that
         // could be escrowed
         let escrow = await getSecuredContacts(referring.contacts);
-        let escrowNeeded = 3; // TODO: This should be configurable!!
+        let escrowNeeded = cfg.escrowNeeded; // TODO: This should be configurable in web UI?
         // Why +1: We should be included, but we aren't yet
         let count = escrow.length + 1
         if (count > escrowNeeded) {
@@ -138,16 +139,53 @@ function decryptCard(card, password) {
   card.encrypted = false;
   return card; // Modifies in place as always, but return it for convenience
 }
+// Actually do the combination given all the cards' with decrypted pieces
+function combine(cards, who) {
+  let id = who.contacts.you.key;
+  let pieces = [];
+  for (let i in cards) {
+    let card = cards[i];
+    pieces.push(card.escrowRecombining[id]);
+    // No longer needed
+    delete card.escrowRecombining[id];
+  }
+  return secrets.hex2str(secrets.combine(pieces));
+}
+// Check if we have the necessary keys to combine
+async function checkCombineCompleted(card, who) {
+  // Card's decryption hasn't been committed to blockchain yet (and shouldn't be)
+  let escrow = [card];
+  let whoId = who.contacts.you.key;
+  for (let entry in who.contacts) {
+    let escrowId = who.contacts[entry].key;
+    let escrowCard = await model.getCard(escrowId);
+    if (escrowCard.escrowRecombining && escrowCard.escrowRecombining[whoId]) {
+      escrow.push(escrowCard);
+    }
+  }
+  if (escrow.length >= cfg.escrowNeeded) {
+    return combine(escrow, who);
+  }
+  return null;
+}
 // Decrypt a piece of escrow
-function decryptPiece(card, otherId, password) {
+async function decryptPiece(card, who, password) {
   decryptCard(card, password);
   if (!card.escrowRecombining) {
     card.escrowRecombining = {};
   }
-  card.escrowRecombining[otherId] = card.asymmetric.escrow[otherId];
-  console.log(card.escrowRecombining[otherId])
-  encryptCard(card, password);
-  model.updateCard(card);
+  let whoId = who.contacts.you.key;
+  card.escrowRecombining[whoId] = card.asymmetric.escrow[whoId];
+  let combined = await checkCombineCompleted(card, who);
+  if (!combined) {
+    encryptCard(card, password);
+    // Don't wait, it can take its time
+    model.updateCard(card);
+    return null;
+  }
+  else {
+    return combined;
+  }
 }
 
 function generateEncryptedKeyPair(password) {
@@ -232,11 +270,13 @@ function revokeSecure(card) {
 async function getSecuredContacts(contacts) {
   let rv = [];
   for (let entryKey in contacts) {
-    let entry = contacts[entryKey];
-    let otherChildCard = await model.getCard(entry.key);
-    if (otherChildCard) {
-      if (otherChildCard.encrypted) {
-        rv.push(otherChildCard);
+    if (entryKey != 'you') {
+      let entry = contacts[entryKey];
+      let otherChildCard = await model.getCard(entry.key);
+      if (otherChildCard) {
+        if (otherChildCard.encrypted) {
+          rv.push(otherChildCard);
+        }
       }
     }
   }

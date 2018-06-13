@@ -27,9 +27,15 @@
           who.contacts.you.name %>'s account.
         </p>
       <% } else { %>
-        <p>
-          Successfully put your piece.
-        <p>
+        <% if (answer) { %>
+          <p>
+            <b>Write this down, it is <%- who.contacts.you.name %>'s key</b>: <code><%- answer %>
+          </p>
+        <% } else { %>
+          <p>
+            Successfully put your piece.
+          <p>
+        <% } %>
       <% } %>
     </div>
   </body>
