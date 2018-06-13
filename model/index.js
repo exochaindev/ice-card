@@ -247,7 +247,8 @@ function getId() {
 function sanitizeId(id) {
   let rv = id;
   rv = rv.replace('.json', '');
-  rv = rv.replace(/[_ +'"]/g, '-');
+  rv = rv.replace(/[_ +'"-]+/g, '-');
+  rv = rv.toLowerCase()
   return rv;
 }
 
