@@ -24,6 +24,9 @@ This will expose the Web app *and the JSON api* to port 3000.
 
 ## Other useful things you might want to know about
 
+There's a limited test suite! `npm test` (mocha). I've been adding tests
+for most significant new functions I've added.
+
 You can also run `node util/populate.js` to fill up some data that might be
 useful, go to `/debug/queryAll` to see what it put there. For convenience, you
 can start and populate with `make dev`.
