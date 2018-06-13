@@ -270,7 +270,7 @@ module.exports.queryAll = fabric.queryAll;
 module.exports.recordAccess = recordAccess;
 
 module.exports.secure = secure;
-
+module.exports.email = email;
 module.exports.fabric = fabric;
 
 
