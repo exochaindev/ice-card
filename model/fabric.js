@@ -218,6 +218,15 @@ async function addCard(card) {
   return sendTransaction('addCard', fabricData);
 }
 
+// Pass a card or an ID and delete it entirely
+async function deleteCard(id) {
+  // Accept either id or card
+  if (typeof(id) == typeof({})) {
+    id = id.contacts.you.key;
+  }
+  return sendTransaction('deleteCard', [id]);
+}
+
 async function updateCard(card) {
   let id = card.contacts.you.key;
   return sendTransaction('updateCard', [id, JSON.stringify(card)]);
@@ -232,6 +241,7 @@ module.exports.queryAll = queryAll;
 module.exports.getCard = getCard;
 module.exports.getReferringCards = getReferringCards;
 module.exports.addCard = addCard;
+module.exports.deleteCard = deleteCard;
 module.exports.updateCard = updateCard;
 module.exports.recordAccess = recordAccess;
 module.exports.sendTransaction = sendTransaction;

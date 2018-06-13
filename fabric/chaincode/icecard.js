@@ -123,6 +123,10 @@ let Chaincode = class {
     console.info('============= END : Create Car ===========');
   }
 
+  async deleteCard(stub, args) {
+    stub.deleteState(args[0]);
+  }
+
   async queryRange(stub, args) {
 
     let startKey = args[0];
