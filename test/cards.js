@@ -46,7 +46,7 @@ describe('model', function() {
   describe('#addCard()', function() {
     it('should return an id', async function() {
       this.timeout(5000);
-      id = await model.addCard(testCard);
+      id = await model.addCard(testCard, false);
       assert.ok(id);
     });
   });
@@ -61,7 +61,7 @@ describe('model', function() {
     it('should make the card go away', async function() {
       this.timeout(5000);
       let toAdd = JSON.parse(JSON.stringify(testCard));
-      let deleteId = await model.addCard(toAdd);
+      let deleteId = await model.addCard(toAdd, false);
       await model.fabric.deleteCard(deleteId);
       let deletedCard = await model.getCard(deleteId);
       assert.ok(!deletedCard);

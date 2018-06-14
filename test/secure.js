@@ -7,7 +7,6 @@ const secure = rewire('../model/secure.js');
 var testCard = require('../util/test-card.json');
 
 describe('secure', function() {
-  var encrypted;
   describe('#makeSecure', function() {
     it('should create a recoverable keypair', async function() {
       this.timeout(10000);
@@ -23,8 +22,10 @@ describe('secure', function() {
       assert.ok(kp);
     });
   });
+  var encrypted;
   describe('#encryptCard', function() {
-    it('should not return the ciphertext', function() {
+    it('should return something encrypted-like', function() {
+      // Dummy decrypt
       let extend = {
         "asymmetric": {
           "test": "thing"
@@ -38,9 +39,11 @@ describe('secure', function() {
       testCard = Object.assign(testCard, extend);
       testCard.encrypted = false;
       // Deep copy for checking
-      let toEncrypt = JSON.parse(JSON.stringify(testCard));
-      encrypted = model.secure.encryptCard(toEncrypt, 'password');
+      encrypted = JSON.parse(JSON.stringify(testCard));
+      model.secure.encryptCard(encrypted, 'password');
       assert.notDeepEqual(testCard, encrypted);
+      assert.ok(encrypted.encrypted);
+      assert.notEqual(typeof(encrypted.secure), typeof({}));
     });
   });
   describe('#decryptCard', function() {
@@ -81,3 +84,4 @@ describe('secure', function() {
     });
   })
 });
+
