@@ -32,6 +32,9 @@ router.get('/:uid/print', c.needsCard);
 router.get('/:uid', function(req, res, next) {
   let canAddSecure = model.secure.canAddSecure(req.card);
   let url = model.getCardUrl(req.uid);
+  if (req.card.deactivated) {
+    res.send('You deactivated this card. Click here to active [link].') // TODO
+  }
   model.onScan(req.card, req);
   res.render('view-card', {
     card: req.card,

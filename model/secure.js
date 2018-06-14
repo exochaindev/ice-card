@@ -188,6 +188,24 @@ async function decryptPiece(card, who, password) {
   }
 }
 
+function deactivateCard(card) {
+  let id = card.contacts.you.key;
+  let stringified = JSON.stringify(card);
+  let kp = getKeyPairFromPems(card.publicKey);
+  let backup = encryptAsymmetricMessage(kp.publicKey, stringified)
+  // We want to modify in place, so we can't do `card = {}`
+  for (let key in card) {
+    if (key != 'publicKey' && key != 'privateKeyEncrypted') {
+      delete card[key];
+    }
+  }
+  card.deactivated = backup;
+  return model.updateCard(card, id);
+}
+function activateCard(card, password) {
+  let ciphertext = card.deactivated;
+}
+
 function generateEncryptedKeyPair(password) {
   // I don't know why forge's method doesn't use Promise, but it seems the
   // reasonable thing to do
@@ -236,6 +254,20 @@ function addAsymmetric(card, object, key, value) {
     // We have the key, it'll be re-encrypted by encryptCard, just set it
     object[key] = value;
   }
+}
+// Long messages don't do well with vanilla RSA, use the complete
+// PKCS-7 protocol for those
+function encryptAsymmetricMessage(key, plaintext) {
+  let p7 = forge.pkcs7.createEnvelopedData();
+  let cert = forge.pki.createCertificate();
+  cert.publicKey = key;
+  p7.addRecipient(cert);
+  // set content
+  p7.content = forge.util.createBuffer(plaintext);
+  // encrypt
+  p7.encrypt();
+  // convert message to PEM
+  return forge.pkcs7.messageToPem(p7);
 }
 
 async function escrow(card, password, needed) {
@@ -286,6 +318,7 @@ async function getSecuredContacts(contacts) {
 module.exports = {
   encryptCard: encryptCard,
   decryptCard: decryptCard,
+  deactivateCard: deactivateCard,
   decryptPiece: decryptPiece,
   escrow: escrow,
   makeSecure: makeSecure,

@@ -98,11 +98,12 @@ async function addCard(data, sendEmails=true) {
   });
 }
 
-async function updateCard(card) {
+async function updateCard(card, keyOverride=null) {
+  let key = keyOverride || card.contacts.you.key;
   if (!card.encrypted && card.secure) {
     throw 'Cannot update card, tried to commit unencrypted card!';
   }
-  await fabric.updateCard(card);
+  await fabric.updateCard(card, key);
 }
 
 async function recordAccess(req) {

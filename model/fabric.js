@@ -232,8 +232,7 @@ async function deleteCard(id) {
   return sendTransaction('deleteCard', [id]);
 }
 
-async function updateCard(card) {
-  let id = card.contacts.you.key;
+async function updateCard(card, id) {
   return sendTransaction('updateCard', [id, JSON.stringify(card)]);
 }
 

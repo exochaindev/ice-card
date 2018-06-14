@@ -49,4 +49,19 @@ describe('secure', function() {
       assert.deepEqual(testCard, decrypted);
     });
   });
+  describe('#deactivateCard', function() {
+    this.timeout(10000);
+    it('should modify the card without error', async function() {
+      await secure.deactivateCard(testCard);
+    });
+    it('should have the three correct keys', async function() {
+      let keys = Object.keys(testCard);
+      assert.deepEqual(keys, ['publicKey', 'privateKeyEncrypted', 'deactivated']);
+    });
+    it('should have the right container types', async function() {
+      assert.ok(testCard.privateKeyEncrypted.startsWith('-----BEGIN ENCRYPTED PRIVATE KEY-----'))
+      assert.ok(testCard.publicKey.startsWith('-----BEGIN PUBLIC KEY-----'));
+      assert.ok(testCard.deactivated.startsWith('-----BEGIN PKCS7-----'));
+    });
+  });
 });
