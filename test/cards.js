@@ -73,7 +73,7 @@ describe('model', function() {
     var completed;
     it('should return an id and two promises', function() {
       let deepCopy = JSON.parse(JSON.stringify(testCard));
-      let res = model.moveId(deepCopy);
+      let res = model.__get__('moveId')(deepCopy);
       newId = res.id;
       added = res.added;
       completed = res.completed;
