@@ -30,9 +30,9 @@ router.get('/:uid', c.needsCard);
 router.get('/:uid/print', c.needsCard);
 
 router.get('/:uid', function(req, res, next) {
-  model.recordAccess(req);
   let canAddSecure = model.secure.canAddSecure(req.card);
   let url = model.getCardUrl(req.uid);
+  model.onScan(req.card, req);
   res.render('view-card', {
     card: req.card,
     canAddSecure: canAddSecure,

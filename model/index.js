@@ -85,11 +85,13 @@ async function initCard(card) {
 
 }
 
-async function addCard(data) {
+async function addCard(data, sendEmails=true) {
   await initCard(data);
   return fabric.addCard(data).then((response) => {
-    // Send viral-factor emails. This helps us complete escrow and gain users
-    email.sendCardEmails(data);
+    if (sendEmails) {
+      // Send viral-factor emails. This helps us complete escrow and gain users
+      email.sendCardEmails(data);
+    }
     return data.contacts.you.key; // Need that ID to redirect
   }, (err) => {
     throw 'Could not add card: ' + err
@@ -112,6 +114,18 @@ async function recordAccess(req) {
   await fabric.recordAccess(data);
 }
 
+function onScan(card, req) {
+  recordAccess(req);
+  if (card.secure) {
+    throw new Error('Revoke secure card not yet implemented');
+  }
+  else {
+    let res = moveId(card);
+    let id = res.id;
+    email.sendMoved(id, card);
+  }
+}
+
 // Returns an object:
 // {
 //   id: the generated ID the card was moved to
@@ -125,7 +139,7 @@ function moveId(card) {
   card.contacts.you.key = newId;
 
   let promises = [];
-  let added = addCard(card);
+  let added = addCard(card, false);
   promises.push(added);
 
   // For every card that refers to us, change the referred id
@@ -306,7 +320,6 @@ module.exports.getCard = getCard;
 module.exports.getClosestPerson = getClosestPerson;
 module.exports.addCard = addCard;
 module.exports.updateCard = updateCard;
-module.exports.moveId = moveId;
 
 // Urls
 module.exports.sanitizeId = sanitizeId;
@@ -316,7 +329,7 @@ module.exports.getPrintUrl = getPrintUrl;
 module.exports.getReferredUrl = getReferredUrl;
 
 module.exports.queryAll = fabric.queryAll;
-module.exports.recordAccess = recordAccess;
+module.exports.onScan = onScan;
 
 module.exports.secure = secure;
 module.exports.email = email;
