@@ -22,7 +22,7 @@ describe('secure', function() {
       let kp = secure.__get__('getKeyPairFromPems')(testCard.publicKey, testCard.privateKeyEncrypted, 'password');
       assert.ok(kp);
     });
-  })
+  });
   describe('#encryptCard', function() {
     it('should not return the ciphertext', function() {
       let extend = {
@@ -47,10 +47,19 @@ describe('secure', function() {
     it('should be able to reverse encryption', function() {
       let decrypted = model.secure.decryptCard(encrypted, 'password');
       assert.deepEqual(testCard, decrypted);
+      delete encrypted; // Misleading name; it's actually decrypted
     });
   });
+  var originalCard;
   describe('#deactivateCard', function() {
-    this.timeout(10000);
+    before(function() {
+      // Decrypt the card again, as its state should be
+      model.secure.encryptCard(testCard, 'password')
+    });
+    this.timeout(5000);
+    before(function() {
+      originalCard = JSON.parse(JSON.stringify(testCard));
+    })
     it('should modify the card without error', async function() {
       await secure.deactivateCard(testCard);
     });
@@ -64,4 +73,11 @@ describe('secure', function() {
       assert.ok(testCard.deactivated.startsWith('-----BEGIN PKCS7-----'));
     });
   });
+  describe('#activateCard', function() {
+    this.timeout(5000);
+    it('should restore the card to its former glory', async function() {
+      await secure.activateCard(testCard, 'password');
+      assert.deepEqual(testCard, originalCard);
+    });
+  })
 });

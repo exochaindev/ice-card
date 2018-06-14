@@ -204,6 +204,12 @@ function deactivateCard(card) {
 }
 function activateCard(card, password) {
   let ciphertext = card.deactivated;
+  let kp = getKeyPairFromPems(card.publicKey, card.privateKeyEncrypted, password);
+  let decrypted = decryptAsymmetricMessage(kp.privateKey, ciphertext);
+  let original = JSON.parse(decrypted);
+  Object.assign(card, original);
+  delete card.deactivated;
+  return model.updateCard(card);
 }
 
 function generateEncryptedKeyPair(password) {
@@ -269,6 +275,11 @@ function encryptAsymmetricMessage(key, plaintext) {
   // convert message to PEM
   return forge.pkcs7.messageToPem(p7);
 }
+function decryptAsymmetricMessage(key, pem) {
+  let p7 = forge.pkcs7.messageFromPem(pem);
+  p7.decrypt(p7.recipients[0], key);
+  return p7.content;
+}
 
 async function escrow(card, password, needed) {
   let id = card.contacts.you.key;
@@ -319,6 +330,7 @@ module.exports = {
   encryptCard: encryptCard,
   decryptCard: decryptCard,
   deactivateCard: deactivateCard,
+  activateCard: activateCard,
   decryptPiece: decryptPiece,
   escrow: escrow,
   makeSecure: makeSecure,
