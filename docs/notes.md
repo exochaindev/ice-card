@@ -1,7 +1,3 @@
-- What happens if I've lost my account? How do I notify those people
-   - Polynomial key
-   - Any 3 of the 4 can recover key
-   - Use that contact info to reach them out
 - Reporting that you've lost your key, is just one type of report
    - There's more! e.g.
      - Someone reports you as dead
@@ -9,8 +5,8 @@
          - Continue sening out notes
          - Confirmation
          - Info deleted, sent, etc.
-- Delete card on first scan
-- Note field
+   - = Capabilities
+- Email when secured card is invalidated
 - Back side should be limited to Primary and Alternative contact + phone number
    - Note: for more information
 - PACPACE
