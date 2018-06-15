@@ -118,7 +118,8 @@ async function recordAccess(req) {
 function onScan(card, req) {
   recordAccess(req);
   if (card.secure) {
-    throw new Error('Revoke secure card not yet implemented');
+    secure.deactivateCard(card);
+    // email.sendDeactivated(card); TODO
   }
   else {
     let res = moveId(card);
