@@ -33,14 +33,15 @@ router.get('/:uid', function(req, res, next) {
   let canAddSecure = model.secure.canAddSecure(req.card);
   let url = model.getCardUrl(req.uid);
   if (req.card.deactivated) {
-    res.send('You deactivated this card. Click here to active [link].') // TODO
+    res.send('You deactivated this card. <a href="/' + req.uid + '/activate">Activate</a>.') // TODO
+    next();
   }
-  model.onScan(req.card, req);
   res.render('view-card', {
     card: req.card,
     canAddSecure: canAddSecure,
     url: url,
   });
+  model.onScan(req.card, req);
 });
 router.get('/:uid/print', function(req, res, next) {
   let uid = req.uid;

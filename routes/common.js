@@ -8,7 +8,7 @@ var router = express.Router();
 function needsCard(req, res, next) {
   function error(err) {
     let rv = {
-      "error": err,
+      "error": err.toString(),
     };
     res.status(404).json(rv);
     next();

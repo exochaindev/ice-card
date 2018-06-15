@@ -10,6 +10,7 @@ const cfg = require('../config.json');
 var router = express.Router();
 
 router.all('/:uid/make-secure', c.needsCard);
+router.post('/:uid/activate', c.needsCard);
 router.all('/:uid/revoke-secure', c.needsCard);
 router.all('/:uid/complete-escrow', c.needsCard);
 router.all('/:uid/revoke-escrow', c.needsCard);
@@ -47,6 +48,14 @@ router.get('/:uid/revoke-secure', function(req, res, next) {
   // TODO: This should require a password
   model.revokeSecure(req.card);
   res.send('Secure access has been revoked.')
+});
+
+router.get('/:uid/activate', function(req, res, next) {
+  res.render('activate', { });
+});
+router.post('/:uid/activate', function(req, res, next) {
+  model.secure.activateCard(req.card, req.body.password);
+  res.send('Card re-activated. No need to print a new one.') // TODO: Flash
 });
 
 router.all('/:uid/complete-escrow', function(req, res, next) {
