@@ -42,7 +42,7 @@ router.get('/:uid/make-secure', function(req, res, next) {
 });
 router.post('/:uid/make-secure', function(req, res, next) {
   model.secure.makeSecure(req.card, req.body.password);
-  res.send("cool, you just did absolutely nothing") // (TODO)
+  res.send('Successfully secured card.') // TODO: Actually flash or render a page
 });
 router.get('/:uid/revoke-secure', function(req, res, next) {
   // TODO: This should require a password

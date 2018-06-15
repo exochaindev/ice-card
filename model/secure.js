@@ -41,7 +41,6 @@ async function makeSecure(card, password) {
   card['privateKeyEncrypted'] = keypair.privateKeyEncrypted;
 
   card['canEscrow'] = true;
-  card['hasEscrow'] = false;
 
   // TODO: To make this query faster, we could store the number escrow in the
   // referring card, and then increment it whenever we secure
