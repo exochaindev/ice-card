@@ -6,7 +6,6 @@
          - Confirmation
          - Info deleted, sent, etc.
    - = Capabilities
-- Email when secured card is invalidated
 - Back side should be limited to Primary and Alternative contact + phone number
    - Note: for more information
 - PACPACE

@@ -100,9 +100,27 @@ function sendMoved(newId, card) {
   });
 }
 
+// TODO: Do abstraction a lot better in this file
+function sendDeactivated(card) {
+  let id = card.contacts.you.key;
+  let address = card.contacts.you.email;
+  let url = model.getCardUrl(id, true, true);
+  email.send({
+    template: 'deactivated',
+    message: {
+      to: address,
+    },
+    locals: {
+      url: url,
+      card: card,
+    }
+  });
+}
+
 module.exports = {
   sendCardEmails: sendCardEmails,
   sendEscrowFinished: sendEscrowFinished,
   sendMoved: sendMoved,
+  sendDeactivated: sendDeactivated,
 }
 

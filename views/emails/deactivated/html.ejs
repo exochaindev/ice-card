@@ -1,0 +1,20 @@
+<html>
+  <head>
+    <% include ../style.ejs %>
+  </head>
+  <body>
+    <h1>
+      <%- card.contacts.you.name %>: Your ICE Card has expired
+    </h1>
+
+    <p>
+      Your ICE Card was read, so to protect you we have invalidated your
+      current card.
+      <b>You must now
+        <a href="<%- url %>/activate">
+          reactivate your card with your password</a>.
+      </b>
+    </p>
+  </body>
+</html>
+

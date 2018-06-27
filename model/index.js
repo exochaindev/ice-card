@@ -120,8 +120,8 @@ async function recordAccess(req) {
 function onScan(card, req) {
   recordAccess(req);
   if (card.secure && card.deactivate) {
+    email.sendDeactivated(card);
     secure.deactivateCard(card);
-    // email.sendDeactivated(card); TODO
   }
   else if (card.deactivate) {
     let res = moveId(card);
