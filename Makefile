@@ -6,6 +6,7 @@ dev: network server populate
 
 first: node_modules
 	cp -n dummy-secure-config.json secure-config.json
+	cp -n dummy-config.json config.json
 
 network:
 	cd fabric && ./start.sh
