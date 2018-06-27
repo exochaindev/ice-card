@@ -10,6 +10,8 @@ fs.readFile('./util/test-card.json', 'utf-8', async (err, data) => {
     throw err;
   }
   let card = JSON.parse(data);
+  // testing-monkey-15 will always be there for you
+  card.deactivate = false;
   id = await model.addCard(card);
   for (let entry in card.contacts) {
     if (entry != 'you') {

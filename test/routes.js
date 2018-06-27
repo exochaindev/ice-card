@@ -49,7 +49,7 @@ describe('POST', function() {
     before(async function() {
       // TODO: Figure out how to not have to do this mess
       // We don't know when makeSecure has finished because /make-secure responds immediately
-      this.timeout(10000);
+      this.timeout(12000);
       let card = await model.getCard(uid);
       await model.secure.makeSecure(card, 'password');
       await model.secure.deactivateCard(card);

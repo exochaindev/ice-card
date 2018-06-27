@@ -24,10 +24,7 @@ describe('model', function() {
     it('should read the notes field', function() {
       let form = { notes: 'Notes' };
       let rv = model.parseCard(form);
-      // We don't care about contacts right now
-      delete rv.contacts;
-      let expected = { notes: 'Notes' };
-      assert.deepEqual(rv, expected);
+      assert.equal(rv.notes, 'Notes');
     });
   });
   describe('#sanitizeId()', function() {

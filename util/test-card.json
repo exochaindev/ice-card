@@ -36,6 +36,7 @@
       "key": "testing-monkey-15"
     }
   },
-  "notes": "These are some notes"
+  "notes": "These are some notes",
+  "deactivate": true
 }
 
