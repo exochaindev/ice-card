@@ -7,13 +7,15 @@ const forge = require('node-forge');
 const model = require('./index.js');
 const cfg = require('../config.json');
 
+const secrets = require('secrets.js-grempe');
+
 // AES is secure to known-plaintext, which is absolutely critical for:
 // - Public encrypted databases
 // - JSON
 const cipherType = 'aes192';
 
-const secrets = require('secrets.js-grempe');
-
+// Make a card ready to be secured. This means generating a keypair and putting
+// some blank objects
 async function makeSecure(card, password) {
   card.secureExpires = 0; // No more making secure / changing password, obviously!
   // The secure field is entirely encrypted, every time with AES. This keeps
@@ -74,12 +76,14 @@ async function makeSecure(card, password) {
   await model.updateCard(card);
 }
 
+// Convenience for AES symmetric encryption (always uses base64)
 function encrypt(plaintext, password) {
   const cipher = crypto.createCipher(cipherType, Buffer.from(password));
   let encrypted = cipher.update(plaintext, 'utf8', 'base64');
   encrypted += cipher.final('base64');
   return encrypted;
 }
+// Convenience for AES symmetric decryption (always uses base64)
 function decrypt(ciphertext, password) {
   const cipher = crypto.createDecipher(cipherType, Buffer.from(password));
   let decrypted = cipher.update(ciphertext, 'base64', 'utf8');
@@ -100,6 +104,7 @@ function changeLeaves(obj, callback) {
   }
 }
 
+// Encrypt all a card's secret fields
 // card.secure can be in two states:
 // 1. an object, which all those secrets in plain
 // 2. an encrypted JSON string of all those secrets
@@ -138,6 +143,8 @@ function decryptCard(card, password) {
   card.encrypted = false;
   return card; // Modifies in place as always, but return it for convenience
 }
+
+// Escrow stuff:
 // Actually do the combination given all the cards' with decrypted pieces
 function combine(cards, who) {
   let id = who.contacts.you.key;
@@ -187,6 +194,8 @@ async function decryptPiece(card, who, password) {
   }
 }
 
+// When a card has been read, take ALL the data, encrypt it with the public
+// key, and then delete it. The password will be necessary to re-activate it
 function deactivateCard(card) {
   let id = card.contacts.you.key;
   let stringified = JSON.stringify(card);
@@ -201,6 +210,7 @@ function deactivateCard(card) {
   card.deactivated = backup;
   return model.updateCard(card, id);
 }
+// Decrypt the private key and restore all that backed up data
 function activateCard(card, password) {
   let ciphertext = card.deactivated;
   let kp = getKeyPairFromPems(card.publicKey, card.privateKeyEncrypted, password);
@@ -211,7 +221,9 @@ function activateCard(card, password) {
   return model.updateCard(card);
 }
 
-function generateEncryptedKeyPair(password) {
+// Generate a keypair, then encrypt the private one with password
+// Returns a Promise with that keypair
+async function generateEncryptedKeyPair(password) {
   // I don't know why forge's method doesn't use Promise, but it seems the
   // reasonable thing to do
   return new Promise(function(resolve, reject) {
@@ -232,6 +244,7 @@ function generateEncryptedKeyPair(password) {
     });
   });
 }
+// You don't need all parameters, it's a convenience function to get either or both of them
 function getKeyPairFromPems(publicPem, privateEncryptedPem, password) {
   let rv = {};
   // convert a PEM-formatted public key to a Forge public key
@@ -243,12 +256,15 @@ function getKeyPairFromPems(publicPem, privateEncryptedPem, password) {
   return rv;
 }
 
+// Convenience function for using asym crypto
 function encryptAsymmetric(key, value) {
   return forge.util.encode64(key.encrypt(value));
 }
 function decryptAsymmetric(key, value) {
   return key.decrypt(forge.util.decode64(value));
 }
+// Add a leaf to the card.asymmetric object
+// Encrypted iff card is encrypted
 function addAsymmetric(card, object, key, value) {
   if (card.encrypted) {
     let keypair = getKeyPairFromPems(card.publicKey);
@@ -280,6 +296,8 @@ function decryptAsymmetricMessage(key, pem) {
   return p7.content;
 }
 
+// Given a card and a password, split that password amongst all secured contacts
+// Resolves promise to null when done
 async function escrow(card, password, needed) {
   let id = card.contacts.you.key;
   let intoCards = await getSecuredContacts(card.contacts);
@@ -296,6 +314,8 @@ async function escrow(card, password, needed) {
   }
 }
 
+// Check if the ability to add a password to a card has expired
+// This has to expire so no-one can troll through cards and steal them
 function canAddSecure(card) {
   return card.secureExpires > Date.now();
 }
@@ -309,6 +329,7 @@ function revokeSecure(card) {
     model.updateCard(card);
   }
 }
+// Get all contacts of a card that have enabled security with a password
 async function getSecuredContacts(contacts) {
   let rv = [];
   for (let entryKey in contacts) {

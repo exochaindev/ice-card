@@ -39,14 +39,19 @@ function parseCard(form) {
   return card;
 }
 
-function swapEntry(card, one, two) {
-  let temp = Object.assign({}, card[one]);
-  card[one] = Object.assign({}, card[two]);
-  card[two] = temp;
+// Swap two contacts entries
+function swapEntry(contacts, one, two) {
+  let temp = Object.assign({}, contacts[one]);
+  contacts[one] = Object.assign({}, contacts[two]);
+  contacts[two] = temp;
 }
 
 var getCard = fabric.getCard;
 
+// A referrer card has the referred's information as "you" and the referrer's
+// information as "primary".
+// Return a card that looks like that given the ID of the original card and who
+// the referred is on that original card (i.e. alternative / etc)
 function referrerCard(id, type) {
   return getCard(id).then((card) => {
     if (type) {
@@ -62,7 +67,10 @@ function referrerCard(id, type) {
   });
 }
 
-async function initCard(card) {
+// A card needs a lot of properties that don't come from input
+// EG: When it can be no longer secured, and new keys for new entries
+// Initialize a card IN-PLACE, return nothing
+function initCard(card) {
   // Set expiration date for adding security expiring
   // This is needed so that someone cannot secure an unsecured card and
   // essentially steal it
@@ -80,6 +88,7 @@ async function initCard(card) {
   // or by this right here: a new random key.
   // This allows us to connect records, even if they haven't signed up yet.
   for (let entry in card.contacts) {
+    // TODO: Only add key if not empty
     if (!card.contacts[entry].key) {
       card.contacts[entry].key = getId();
     }
@@ -87,6 +96,9 @@ async function initCard(card) {
 
 }
 
+// INITIALIZE and add a card to the blockchain
+// The key is implied by the card data sent
+// Returns a promise that resolves with the key ONCE the card has been ADDED
 async function addCard(data, sendEmails=true) {
   await initCard(data);
   return fabric.addCard(data).then((response) => {
@@ -100,6 +112,9 @@ async function addCard(data, sendEmails=true) {
   });
 }
 
+// Given existing card that's on the blockchain, put this new data in it
+// Key is implied from card
+// Returns a Promise that resolves to null ONCE the card has been UPDATED
 async function updateCard(card, keyOverride=null) {
   let key = keyOverride || card.contacts.you.key;
   if (!card.encrypted && card.secure) {
@@ -108,6 +123,9 @@ async function updateCard(card, keyOverride=null) {
   await fabric.updateCard(card, key);
 }
 
+// Record the user-agent and other info in the blockchain for security /
+// auditing / etc
+// Returns a Promise that resolves to null only once access has been recorded
 async function recordAccess(req) {
   let data = {
     'ip': req.ip,
@@ -117,6 +135,8 @@ async function recordAccess(req) {
   await fabric.recordAccess(data);
 }
 
+// Eveery time a card is scanned, there are some things we want to do
+// (like log it, and maybe deactivate it)
 function onScan(card, req) {
   recordAccess(req);
   if (card.secure && card.deactivate) {
@@ -177,14 +197,15 @@ function moveId(card) {
 
 }
 
+// Search through every contact ever using fuzzy search to find the closest one
+// Returns a promise that resolves to that contact's data once confirmed
 async function getClosestPerson(compareTo) {
   // Because chaincode is a total pain to work with, it's 1000x times easier
   // to nest these, even thought it'd be better for them to be flat in an
   // ideal world
 
-  // Returns a proximity value, between two cards
-  // Bounded [0, 23] at the time of this comment, but upper max is mostly
-  // arbitrary
+  // Returns a proximity value, between two contacts
+  // Bounded [0, 1] at the time of this comment, but upper max is mostly
   function getProximity(original, check) {
     function precisionDst(one, two, precisionLevel) {
       // Two empty strings should give 0 score, despite cmpString returning 1
@@ -270,6 +291,7 @@ async function getClosestPerson(compareTo) {
 }
 
 // If absolute is true, return ice.card/:id or whatever
+// If protocol is true return http://... or whatever
 // Otherwise, return /:id or whatever
 function getCardUrl(id, absolute = false, includeProtocol = false) {
   let rv = '';
@@ -283,6 +305,8 @@ function getCardUrl(id, absolute = false, includeProtocol = false) {
   rv += '/' + id
   return rv;
 }
+// TODO: These start to get pretty complicated to maintain and not worth much.
+// Should we remove them?
 function getQrUrl(id, absolute = false, incProt = false) {
   return getCardUrl(id, absolute, incProt) + '/qr.svg';
 }
@@ -305,6 +329,7 @@ function getReferredUrl(id, type, absolute = false, incProt = false) {
   return rv;
 }
 
+// Generate a unique ID to be used for a contact / card (card ID == contact.you ID)
 function getId() {
   return idGen.random();
 }
