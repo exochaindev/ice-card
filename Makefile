@@ -1,6 +1,6 @@
 NODEMON := $(shell command -v nodemon 2> /dev/null)
 
-all: first run
+all: clear first run
 run: network server
 dev: network server populate
 
@@ -22,4 +22,7 @@ endif
 
 node_modules:
 	npm i
+
+clear:
+	rm -rf fabric/hfc-key-store
 
