@@ -6,8 +6,6 @@
          - Confirmation
          - Info deleted, sent, etc.
    - = Capabilities
-- Back side should be limited to Primary and Alternative contact + phone number
-   - Note: for more information
 - PACPACE
    - Physician, Attorney, CPA, Escrot (=original PACE)
    - Automatically send things to eg Physician

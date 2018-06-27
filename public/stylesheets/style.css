@@ -49,10 +49,6 @@ input[type="checkbox"], .card input[type="checkbox"] {
   margin: 5px calc(10px);
 }
 
-.name {
-  font-size: 1.2em;
-}
-
 .clear {
   clear: both;
 }
@@ -103,10 +99,7 @@ input[type="checkbox"], .card input[type="checkbox"] {
   transform: rotate(180deg);
 }
 .back h2 {
-  font-size: 12px;
-}
-.back p {
-  font-size: 12px;
+  margin-top: 0.2em;
 }
 
 #print-button-container {
