@@ -97,6 +97,9 @@ router.post('/:uid/revoke-escrow', async function(req, res, next) {
   res.send('Revoked successfully')
 });
 
+router.get('/:uid/private', function(req, res, next) {
+  res.render('private', {});
+})
 router.post('/:uid/private', function(req, res, next) {
   model.secure.decryptCard(req.card, req.body.password);
   let all = Object.assign(req.card.secure, req.card.asymmetric);

@@ -1,0 +1,20 @@
+<%#
+%>
+<!DOCTYPE html>
+<html>
+  <head>
+    <% var title = "Access your private data" %>
+    <% include head.ejs %>
+  </head>
+  <body>
+    <p>
+      <h1><%- title %></h1>
+    </p>
+    <div class="wrap">
+      <form method="post" action="">
+        <input id="password" name="password" type="password" placeholder="Password" />
+        <input type="submit" value="Unlock" />
+      </form>
+    </div>
+  </body>
+</html>
