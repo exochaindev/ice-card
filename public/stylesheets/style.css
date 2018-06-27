@@ -87,6 +87,7 @@ input[type="checkbox"], .card input[type="checkbox"] {
   padding: 10px;
   box-sizing: border-box;
   overflow: hidden;
+  border-bottom: 1px dashed black;
 }
 .front h2 {
   font-size: 20px;
@@ -98,8 +99,8 @@ input[type="checkbox"], .card input[type="checkbox"] {
   padding: 5px;
   box-sizing: border-box;
   column-count: 2;
-  border-top: 1px dashed black;
   overflow: hidden;
+  transform: rotate(180deg);
 }
 .back h2 {
   font-size: 12px;
