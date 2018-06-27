@@ -21,6 +21,9 @@ input, textarea {
   padding: 10px;
   width: 100%;
 }
+input[type="checkbox"], .card input[type="checkbox"] {
+  width: initial;
+}
 
 .card input {
   box-sizing: border-box;

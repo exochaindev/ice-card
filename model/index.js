@@ -22,6 +22,8 @@ function parseCard(form) {
   let card = {};
   card.notes = form.notes;
   delete form.notes;
+  card.deactivate = form.deactivate == "on";
+  delete form.deactivate;
   card.contacts = {};
   let contacts = card.contacts;
   Object.keys(form).forEach(function(key) {
@@ -117,11 +119,11 @@ async function recordAccess(req) {
 
 function onScan(card, req) {
   recordAccess(req);
-  if (card.secure) {
+  if (card.secure && card.deactivate) {
     secure.deactivateCard(card);
     // email.sendDeactivated(card); TODO
   }
-  else {
+  else if (card.deactivate) {
     let res = moveId(card);
     let id = res.id;
     email.sendMoved(id, card);

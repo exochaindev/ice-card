@@ -27,6 +27,13 @@ describe('GET', function() {
         .expect(200, done)
     });
   });
+  describe('/:uid/print', function() {
+    it('should 200', function(done) {
+      request(server)
+        .get('/' + uid + '/print')
+        .expect(200, done)
+    });
+  });
 });
 
 describe('POST', function() {
