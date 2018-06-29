@@ -5,6 +5,7 @@ const crypto = require('crypto');
 const forge = require('node-forge');
 
 const model = require('./index.js');
+const email = require('../routes/email.js');
 const cfg = require('../config.json');
 
 const secrets = require('secrets.js-grempe');
@@ -65,7 +66,7 @@ async function makeSecure(card, password) {
           // Now we have a problem. We're ready to do the escrow, but our key
           // isn't stored anywhere. We need to notify the referrer to complete
           // the escrow
-          model.email.sendEscrowFinished(referring, count);
+          email.sendEscrowFinished(referring, count);
         }
       }
     }
@@ -243,7 +244,7 @@ async function generateEncryptedKeyPair(password) {
         keypair.privateKeyEncrypted = forge.pki.encryptRsaPrivateKey(keypair.privateKey, password);
         // Put the public in PEM for JSON storage
         keypair.publicKey = forge.pki.publicKeyToPem(keypair.publicKey);
-        // TODO: Delete plaintext private key for code safety? Or does convenience win?
+        delete keypair.privateKey;
         resolve(keypair);
       }
     });

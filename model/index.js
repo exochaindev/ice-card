@@ -6,7 +6,7 @@ const idGen = require('human-readable-ids').hri;
 // I might prefer that one, actually
 const fabric = require('./fabric.js');
 const secure = require('./secure.js');
-const email = require('./email.js');
+const email = require('../routes/email.js');
 
 const cfg = require('../config.json');
 
