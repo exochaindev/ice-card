@@ -61,7 +61,7 @@ async function makeSecure(card, password) {
         let escrowNeeded = cfg.escrowNeeded; // TODO: This should be configurable in web UI?
         // Why +1: We should be included, but we aren't yet
         let count = escrow.length + 1
-        if (count > escrowNeeded) {
+        if (count >= escrowNeeded) {
           // Now we have a problem. We're ready to do the escrow, but our key
           // isn't stored anywhere. We need to notify the referrer to complete
           // the escrow
@@ -71,8 +71,13 @@ async function makeSecure(card, password) {
     }
   }
 
-  // TODO: Check if we can already share our key (requires concept of identity)
   encryptCard(card, password);
+  // Check if we can already share our key, and do so if we can without input
+  let posse = await getSecuredContacts(card.contacts);
+  if (posse.length >= cfg.escrowNeeded) {
+    escrow(card, password, posse.length);
+  }
+
   await model.updateCard(card);
 }
 

@@ -8,11 +8,11 @@ var testCard = require('../util/test-card.json');
 
 describe('secure', function() {
   describe('#makeSecure', function() {
+    this.timeout(15000);
+    this.slow(10000);
     it('should create a recoverable keypair', async function() {
-      this.timeout(10000);
-      this.slow(6000);
       try {
-        await model.secure.makeSecure(testCard, 'password');
+        await secure.makeSecure(testCard, 'password');
       }
       catch (err) {
         // We don't care about error that could be encryptCard
@@ -21,6 +21,24 @@ describe('secure', function() {
       let kp = secure.__get__('getKeyPairFromPems')(testCard.publicKey, testCard.privateKeyEncrypted, 'password');
       assert.ok(kp);
     });
+    it('should escrow with sufficient friends', async function() {
+      // Establish a dummy getSecuredContacts that returns a bunch of cards,
+      // meaning we have sufficient friends even though we don't
+      await secure.makeSecure(testCard, 'password');
+      // Should not escrow with insufficient friends
+      assert.ok(!testCard.asymmetric.escrow);
+      secure.__set__('getSecuredContacts', function() {
+        let count = 3;
+        let rv = [];
+        // let contact = {};
+        for (let i=0; i<count; i++) {
+          rv.push(testCard);
+        }
+        return rv;
+      });
+      await secure.makeSecure(testCard, 'password');
+      assert.ok(testCard.asymmetric.escrow[testCard.contacts.you.key]);
+    })
   });
   var encrypted;
   describe('#encryptCard', function() {
@@ -40,7 +58,7 @@ describe('secure', function() {
       testCard.encrypted = false;
       // Deep copy for checking
       encrypted = JSON.parse(JSON.stringify(testCard));
-      model.secure.encryptCard(encrypted, 'password');
+      secure.encryptCard(encrypted, 'password');
       assert.notDeepEqual(testCard, encrypted);
       assert.ok(encrypted.encrypted);
       assert.notEqual(typeof(encrypted.secure), typeof({}));
@@ -48,7 +66,7 @@ describe('secure', function() {
   });
   describe('#decryptCard', function() {
     it('should be able to reverse encryption', function() {
-      let decrypted = model.secure.decryptCard(encrypted, 'password');
+      let decrypted = secure.decryptCard(encrypted, 'password');
       assert.deepEqual(testCard, decrypted);
       delete encrypted; // Misleading name; it's actually decrypted
     });
@@ -57,7 +75,7 @@ describe('secure', function() {
   describe('#deactivateCard', function() {
     before(function() {
       // Decrypt the card again, as its state should be
-      model.secure.encryptCard(testCard, 'password')
+      secure.encryptCard(testCard, 'password')
     });
     this.timeout(5000);
     before(function() {
@@ -82,6 +100,6 @@ describe('secure', function() {
       await secure.activateCard(testCard, 'password');
       assert.deepEqual(testCard, originalCard);
     });
-  })
+  });
 });
 

@@ -3,9 +3,6 @@
 > An initial implementation of the ICE Card system with shared key escrow. Using
 Express + Hyperledger Fabric
 
-I thought I'd add this to the GitHub because it's sitting on my harddrive alone
-and that makes me scared.
-
 ## Dependencies
 
  - Node.js **8** (I recommend [nvm](https://github.com/creationix/nvm), since 8
