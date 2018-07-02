@@ -46,6 +46,20 @@ describe('model', function() {
       id = await model.addCard(testCard, false);
       assert.ok(id);
     });
+    it('should send emails', async function() {
+      var success = false;
+      // Don't wait to actually add a card
+      let revert = model.__set__({
+        'fabric.addCard': async () => {},
+        'email.sendCardEmails': () => {
+          success = true;
+        }
+      });
+      // Deep copy and run
+      await model.addCard(JSON.parse(JSON.stringify(testCard)));
+      assert.ok(success);
+      revert();
+    });
   });
   describe('#getCard()', function() {
     // TODO: How do you check for these things?

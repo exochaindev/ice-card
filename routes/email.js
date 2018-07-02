@@ -1,6 +1,6 @@
 'use strict';
 
-const model = require('./index.js');
+const model = require('../model/index.js');
 const cfg = require('../config.json');
 const secureCfg = require('../secure-config.json');
 
