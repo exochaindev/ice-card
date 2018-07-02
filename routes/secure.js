@@ -70,7 +70,10 @@ router.post('/:uid/revoke-secure', function(req, res, next) {
 });
 
 router.get('/:uid/activate', function(req, res, next) {
-  res.render('activate', { });
+  res.render('password', {
+    button: 'Activate card',
+    text: 'Your card has been read, now you must re-activate it.',
+  });
 });
 router.post('/:uid/activate', function(req, res, next) {
   model.secure.activateCard(req.card, req.body.password);
@@ -117,7 +120,10 @@ router.post('/:uid/revoke-escrow', async function(req, res, next) {
 });
 
 router.get('/:uid/private', function(req, res, next) {
-  res.render('private', {});
+  res.render('password', {
+    button: 'Unlock',
+    text: 'Access your private data.',
+  });
 })
 router.post('/:uid/private', function(req, res, next) {
   model.secure.decryptCard(req.card, req.body.password);
