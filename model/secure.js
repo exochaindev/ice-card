@@ -141,6 +141,7 @@ function decryptCard(card, password) {
   }
   catch (err) {
     throw 'Could not parse card. Most likely reason: invalid password. ' + err
+    return false;
   }
   let keypair = getKeyPairFromPems(card.publicKey, card.privateKeyEncrypted, password);
   changeLeaves(card.asymmetric, function(val) {

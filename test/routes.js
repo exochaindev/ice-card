@@ -61,6 +61,20 @@ describe('POST', function() {
         .expect(200, done)
     });
   });
+  describe('/:uid/revoke-secure', function() {
+    it('should 200 to correct passwords', function(done) {
+      request(server)
+        .post('/' + uid + '/activate')
+        .send({password: 'password'})
+        .expect(200, done);
+    })
+    it('should 403 to incorrect passwords', function(done) {
+      request(server)
+        .post('/' + uid + '/activate')
+        .send({password: 'notthepassword'})
+        .expect(403, done);
+    });
+  });
 });
 
 describe('Clean up', function() {

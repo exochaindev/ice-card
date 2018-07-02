@@ -45,9 +45,28 @@ router.post('/:uid/make-secure', function(req, res, next) {
   res.send('Successfully secured card.') // TODO: Actually flash or render a page
 });
 router.get('/:uid/revoke-secure', function(req, res, next) {
-  // TODO: This should require a password
-  model.revokeSecure(req.card);
-  res.send('Secure access has been revoked.')
+  if (req.card.secure) {
+    // This card has been secured and might have sensitive data
+    // To prevent someone from GETting everyone and deleting all data
+    // We ask for a password
+    res.render('password', {
+      button: 'Never secure this card',
+      text: 'You are currently <b>revoking the ability to secure this card</b>.',
+    });
+  }
+  else {
+    model.secure.revokeSecure(req.card);
+    res.send('Secure access has been revoked');
+  }
+});
+router.post('/:uid/revoke-secure', function(req, res, next) {
+  if (model.secure.decryptCard(req.card, req.params.password)) {
+    model.secure.revokeSecure(req.card);
+    res.send('Secure access has been revoked.');
+  }
+  else {
+    res.status(403).send('Incorrect password');
+  }
 });
 
 router.get('/:uid/activate', function(req, res, next) {
