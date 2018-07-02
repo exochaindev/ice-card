@@ -6,15 +6,21 @@ const model = require('../model/index.js');
 var router = express.Router();
 
 function needsCard(req, res, next) {
+  function error(err) {
+    let rv = {
+      "error": err.toString(),
+    };
+    res.status(404).json(rv);
+    next();
+  }
   model.getCard(req.uid).then((card) => {
+    if (!card) {
+      error(new Error('Card does not exist'));
+    }
     req.card = card;
     next();
   }, (err) => {
-    let rv = {
-      "error" : err,
-    };
-    res.status(404).json(rv);
-    next(); // TODO: Should we next()?
+    error(err);
   });
 }
 

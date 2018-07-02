@@ -4,6 +4,12 @@
 # Instead, dummy-secure-config.json is commited to be copied and edited appropriately
 secure-config.json
 
+# Config
+# Initially, I thought it was Ok to commit this, but actually it's just a total
+# pain when I want to change config and git bothers me about it. So I'm doing
+# the "dummy-" thing with config.json as well
+config.json
+
 # --- Fabric stuff ---
 
 hfc-key-store

@@ -1,6 +1,7 @@
 'use strict';
 
-const model = require('./index.js');
+const model = require('../model/index.js');
+const cfg = require('../config.json');
 const secureCfg = require('../secure-config.json');
 
 const Email = require('email-templates');
@@ -24,7 +25,7 @@ const email = new Email({
     },
     root: './views/emails/',
   },
-  send: true,
+  preview: cfg.emailPreviews,
 });
 
 function sendCardEmails(card) {
@@ -82,8 +83,44 @@ function sendEscrowFinished(card, count) {
   });
 }
 
+// Because the card's ID is being messed with asyncronously,
+// it's better just to pass the new ID in
+function sendMoved(newId, card) {
+  let address = card.contacts.you.email;
+  let url = model.getCardUrl(newId, true, true);
+  email.send({
+    template: 'moved',
+    message: {
+      to: address,
+    },
+    locals: {
+      url: url,
+      card: card,
+    },
+  });
+}
+
+// TODO: Do abstraction a lot better in this file
+function sendDeactivated(card) {
+  let id = card.contacts.you.key;
+  let address = card.contacts.you.email;
+  let url = model.getCardUrl(id, true, true);
+  email.send({
+    template: 'deactivated',
+    message: {
+      to: address,
+    },
+    locals: {
+      url: url,
+      card: card,
+    }
+  });
+}
+
 module.exports = {
   sendCardEmails: sendCardEmails,
   sendEscrowFinished: sendEscrowFinished,
+  sendMoved: sendMoved,
+  sendDeactivated: sendDeactivated,
 }
 

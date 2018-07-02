@@ -11,13 +11,12 @@
     "email",
     "phone",
     "address",
-    "key",
   ];
 
   fields.forEach((field) => {
     var value = entry[field];
 %>
-    <p><%- value %></p>
+    <p><%= value %></p>
 <%
   });
 %>

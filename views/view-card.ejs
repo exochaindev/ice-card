@@ -1,3 +1,13 @@
+<%#
+ Needs:
+  * card: a card object to view
+  * canAddSecure: whether this card can still be secured
+  * url: the url of the card (relative)
+ Renders:
+  * All the public information for that card
+  * Links to secure or view private information
+%>
+<% var contacts = card.contacts %>
 <% var you = contacts.you %>
 <!DOCTYPE html>
 <html>
@@ -21,6 +31,8 @@
         <h2><%- key[0].toUpperCase() + key.substr(1) %></h2>
         <%- include('entry.ejs', {entry: contacts[key]}) %>
       <% } %>
+      <h2>Notes</h2>
+      <p><%= card.notes %></p>
       <hr />
       <p>Stay safe. <a href="/">Make your own</a>.</p>
       <p>
@@ -33,3 +45,4 @@
     </div>
   </body>
 </html>
+

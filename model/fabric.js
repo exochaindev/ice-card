@@ -98,7 +98,12 @@ function queryAll() {
 }
 function getCard(id) {
   return query('getCard', [id]).then((card) => {
-    return JSON.parse(card);
+    if (card) {
+      return JSON.parse(card);
+    }
+    else {
+      return null;
+    }
   }, (err) => {
     // Fail silently. This can be checked, but most of the time, we don't care
     return null;
@@ -218,8 +223,16 @@ async function addCard(card) {
   return sendTransaction('addCard', fabricData);
 }
 
-async function updateCard(card) {
-  let id = card.contacts.you.key;
+// Pass a card or an ID and delete it entirely
+async function deleteCard(id) {
+  // Accept either id or card
+  if (typeof(id) == typeof({})) {
+    id = id.contacts.you.key;
+  }
+  return sendTransaction('deleteCard', [id]);
+}
+
+async function updateCard(card, id) {
   return sendTransaction('updateCard', [id, JSON.stringify(card)]);
 }
 
@@ -232,6 +245,7 @@ module.exports.queryAll = queryAll;
 module.exports.getCard = getCard;
 module.exports.getReferringCards = getReferringCards;
 module.exports.addCard = addCard;
+module.exports.deleteCard = deleteCard;
 module.exports.updateCard = updateCard;
 module.exports.recordAccess = recordAccess;
 module.exports.sendTransaction = sendTransaction;

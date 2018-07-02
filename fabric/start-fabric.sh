@@ -17,9 +17,6 @@ LANGUAGE=node
 projectname='icecard'
 export CC_SRC_PATH=/opt/gopath/src/github.com
 
-# clean the keystore
-rm -rf ./hfc-key-store
-
 # launch network; create channel and join peer to channel
 ./start-container.sh
 

@@ -2,38 +2,41 @@
   "contacts": {
     "alternative": {
       "address": "13 Great Street, Great NW",
-      "email": "email3@example.com",
-      "name": "Alternative Contacti",
+      "email": "onlysecondbest@example.com",
+      "name": "Ian Fieri Complex",
       "phone": "+1332860383910",
       "key": "testing-monkey-12"
     },
     "contingency": {
-      "address": "19 Big St.",
+      "address": "1 Irony St.",
       "email": "wackylongemailfriend@example.com",
-      "name": "Contigency Contact Longname",
+      "name": "Mr. Graves Emitter Longname",
       "phone": "0349184",
       "key": "testing-monkey-13"
     },
     "emergency": {
       "address": "Everywhere",
       "email": "sh@sh.sh",
-      "name": "Shrt",
+      "name": "Bert",
       "phone": "145",
       "key": "testing-monkey-16"
     },
     "primary": {
-      "address": "83 Cool Street, Bigtown RN",
-      "email": "email2@example.com",
-      "name": "Primary Contact",
-      "phone": "0349184",
+      "address": "83 Cool Street, Bigtown AL",
+      "email": "wrestling@example.com",
+      "name": "Dwayne 'The Rock' Johnson",
+      "phone": "7435033",
       "key": "testing-monkey-14"
     },
     "you": {
       "address": "88 Westside Street, Town RN",
-      "email": "email@example.com",
-      "name": "Fake Data",
+      "email": "realfriends@example.com",
+      "name": "Camila Cabello",
       "phone": "2860383910",
       "key": "testing-monkey-15"
     }
-  }
+  },
+  "notes": "These are some notes",
+  "deactivate": true
 }
+

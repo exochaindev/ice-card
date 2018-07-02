@@ -46,8 +46,7 @@ let Chaincode = class {
 
     return stub.getState(id).then((cardData) => {
       if (!cardData || cardData.toString().length <= 0) {
-        console.error("Card " + id + " does not exist");
-        throw new Error("Card " + id + ' does not exist: ');
+        return null;
       }
       let card = cardData;
       return card;
@@ -121,6 +120,10 @@ let Chaincode = class {
 
     await stub.putState(args[0], Buffer.from(args[1]));
     console.info('============= END : Create Car ===========');
+  }
+
+  async deleteCard(stub, args) {
+    stub.deleteState(args[0]);
   }
 
   async queryRange(stub, args) {

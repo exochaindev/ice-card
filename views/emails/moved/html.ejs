@@ -1,0 +1,22 @@
+<html>
+  <head>
+    <% include ../style.ejs %>
+  </head>
+  <body>
+    <h1>
+      <%- card.contacts.you.name %>: Your ICE Card has expired
+    </h1>
+
+    <p>
+      Your ICE Card was read, so to protect you we have invalidated your
+      current card. <b>You must now <a href="<%- url %>/print">print your updated card</a>.</b>
+    </p>
+
+    <p>
+      To avoid needing to print cards every time your card is scanned, you
+      should <a href="<%- url %>/make-secure">secure your new card</a> with a
+      password, so you can log in and re-validate your card in the future.
+    </p>
+  </body>
+</html>
+

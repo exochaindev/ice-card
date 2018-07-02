@@ -16,7 +16,7 @@ router.get('/:uid.json', c.needsCard);
 router.post('/:uid/private.json', c.needsCard);
 
 router.get('/:uid.json', function(req, res, next) {
-  model.recordAccess(req);
+  model.onScan(req.card, req);
   res.json(req.card);
 });
 router.post('/:uid/private.json', function(req, res, next) {
