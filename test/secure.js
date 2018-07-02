@@ -7,6 +7,12 @@ const secure = rewire('../model/secure.js');
 var testCard = require('../util/test-card.json');
 
 describe('secure', function() {
+  describe('#getPassKey', function() {
+    it('should get a properly sized key', () => {
+      let key = secure.getPassKey('password');
+      assert.equal(key.key.length, 128);
+    });
+  });
   describe('#makeSecure', function() {
     this.timeout(15000);
     this.slow(10000);
@@ -27,7 +33,7 @@ describe('secure', function() {
       await secure.makeSecure(testCard, 'password');
       // Should not escrow with insufficient friends
       assert.ok(!testCard.asymmetric.escrow);
-      secure.__set__('getSecuredContacts', function() {
+      let revert = secure.__set__('getSecuredContacts', function() {
         let count = 3;
         let rv = [];
         // let contact = {};
@@ -37,8 +43,33 @@ describe('secure', function() {
         return rv;
       });
       await secure.makeSecure(testCard, 'password');
+      assert.ok(testCard.asymmetric)
+      assert.ok(testCard.asymmetric.escrow)
       assert.ok(testCard.asymmetric.escrow[testCard.contacts.you.key]);
+      revert();
     })
+  });
+  describe('#encryptAsymmetric', function() {
+    it('should succeed on small keys', () => {
+      let key = secure.__get__('getKeyPairFromPems')(testCard.publicKey).publicKey;
+      let encrypted = secure.__get__('encryptAsymmetric')(key, 'short');
+      console.log(encrypted);
+      assert.ok(encrypted);
+    });
+    it('should fail on large keys', () => {
+      let longKey = `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+        aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+        aaaaaaaa`; // 128 bits
+      let success = true;
+      try {
+        let encrypted = secure.__get__('encryptAsymmetric')('short');
+        let success = false;
+      }
+      catch (err) {
+        success = true;
+      }
+      assert.ok(success);
+    });
   });
   var encrypted;
   describe('#encryptCard', function() {

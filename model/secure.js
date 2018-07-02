@@ -1,5 +1,6 @@
 'use strict';
 
+const assert = require('assert');
 const crypto = require('crypto');
 // TODO: Use all forge instead of crypto?
 const forge = require('node-forge');
@@ -14,25 +15,41 @@ const secrets = require('secrets.js-grempe');
 // - Public encrypted databases
 // - JSON
 const cipherType = 'aes192';
-const passwordHasher = crypto.createHash('sha256');
 
-const secrets = require('secrets.js-grempe');
+// This is also used to make sure I'm not calling passwords keys
 
-// This password hash is NOT SAFE. It is NOT A TRADITIONAL PASSWORD HASH The
-// password is not used for authentication (because everything is encrypted),
-// so it is not merely hashed and compared. In that case I would use bcrypt /
-// etc. The password is only hashed to make it harder to crack (read: longer)
-// as well as to avoid awkward or dangerous (=re-used) passwords recovered in
-// escrow
-// TODO: Actually use this
-function hashPassword(clear) {
-  passwordHasher.update(clear);
-  return passwordHasher.digest('hex');
+const keyLength = 128;
+
+// Derive an AES key from a password. When AES needs a "password", it really
+// needs this passKey
+// Optional parameter salt re-uses a known salt
+// Returns:
+// {
+//   key: key,
+//   salt: salt,
+// }
+function getPassKey(password, salt) {
+  // PBKDF2 recommends a 16 byte salt
+  if (typeof salt == "undefined") {
+    salt = crypto.randomBytes(16);
+  }
+  const key = crypto.pbkdf2Sync(password, salt, 100000, keyLength, 'sha512');
+  //
+  return {
+    key: key,
+    salt: salt,
+  }
+}
+function assertPassKey(passKey) {
+  assert.equal(passKey.length, keyLength,
+    'passKey has incorrect length, did you try to call with a password instead of a passKey?')
 }
 
 // Make a card ready to be secured. This means generating a keypair and putting
 // some blank objects
 async function makeSecure(card, password) {
+  let passKeyAndSalt = getPassKey(password);
+  let passKey = passKeyAndSalt.key;
   card.secureExpires = 0; // No more making secure / changing password, obviously!
   // The secure field is entirely encrypted, every time with AES. This keeps
   // metadata secure
@@ -57,6 +74,9 @@ async function makeSecure(card, password) {
   let keypair = await generateEncryptedKeyPair(password);
   card['publicKey'] = keypair.publicKey;
   card['privateKeyEncrypted'] = keypair.privateKeyEncrypted;
+
+  // Password: store salt and nothing else
+  card['salt'] = passKeyAndSalt.salt;
 
   card['canEscrow'] = true;
 
@@ -98,15 +118,17 @@ async function makeSecure(card, password) {
 }
 
 // Convenience for AES symmetric encryption (always uses base64)
-function encrypt(plaintext, password) {
-  const cipher = crypto.createCipher(cipherType, Buffer.from(password));
+function encrypt(plaintext, passKey) {
+  assertPassKey(passKey);
+  const cipher = crypto.createCipher(cipherType, passKey);
   let encrypted = cipher.update(plaintext, 'utf8', 'base64');
   encrypted += cipher.final('base64');
   return encrypted;
 }
 // Convenience for AES symmetric decryption (always uses base64)
-function decrypt(ciphertext, password) {
-  const cipher = crypto.createDecipher(cipherType, Buffer.from(password));
+function decrypt(ciphertext, passKey) {
+  assertPassKey(passKey);
+  const cipher = crypto.createDecipher(cipherType, passKey);
   let decrypted = cipher.update(ciphertext, 'base64', 'utf8');
   decrypted += cipher.final('utf8');
   return decrypted;
@@ -133,11 +155,12 @@ function changeLeaves(obj, callback) {
 // Why the same entry instead of two? Safer against letting data get lost when
 // it's not re-encrypted. We assume all writes will include updated data
 function encryptCard(card, password) {
+  let passKey = getPassKey(password, card.salt).key;
   if (card.encrypted) {
     return card;
   }
   let plaintextJSON = JSON.stringify(card.secure);
-  card.secure = encrypt(plaintextJSON, password);
+  card.secure = encrypt(plaintextJSON, passKey);
   let keypair = getKeyPairFromPems(card.publicKey, card.privateKeyEncrypted, password);
   changeLeaves(card.asymmetric, function(val) {
     return encryptAsymmetric(keypair.publicKey, val);
@@ -146,11 +169,12 @@ function encryptCard(card, password) {
   return card; // Modifies in place as always, but return it for convenience
 }
 function decryptCard(card, password) {
+  let passKey = getPassKey(password, card.salt).key;
   if (!card.encrypted) {
     return card;
   }
   let encryptedJSON = card.secure;
-  let decrypted = decrypt(encryptedJSON, password);
+  let decrypted = decrypt(encryptedJSON, passKey);
   try {
     card.secure = JSON.parse(decrypted);
   }
@@ -245,6 +269,8 @@ function activateCard(card, password) {
 
 // Generate a keypair, then encrypt the private one with password
 // Returns a Promise with that keypair
+// We DON'T accept a passKey (password instead) because we use PCKS#8 which
+// uses PCKS#5 (ie passKey generation) internally
 async function generateEncryptedKeyPair(password) {
   // I don't know why forge's method doesn't use Promise, but it seems the
   // reasonable thing to do
@@ -267,6 +293,8 @@ async function generateEncryptedKeyPair(password) {
   });
 }
 // You don't need all parameters, it's a convenience function to get either or both of them
+// We DON'T accept a passKey (password instead) because we use PCKS#8 which
+// uses PCKS#5 (ie passKey generation) internally
 function getKeyPairFromPems(publicPem, privateEncryptedPem, password) {
   let rv = {};
   // convert a PEM-formatted public key to a Forge public key
@@ -321,9 +349,10 @@ function decryptAsymmetricMessage(key, pem) {
 // Given a card and a password, split that password amongst all secured contacts
 // Resolves promise to null when done
 async function escrow(card, password, needed) {
+  let passKey = getPassKey(password, card.salt).key;
   let id = card.contacts.you.key;
   let intoCards = await getSecuredContacts(card.contacts);
-  let passwordHex = secrets.str2hex(password);
+  let passwordHex = secrets.str2hex(passKey);
   let shares = secrets.share(passwordHex, intoCards.length, needed);
   for (let i in intoCards) {
     let into = intoCards[i];
@@ -369,6 +398,7 @@ async function getSecuredContacts(contacts) {
 }
 
 module.exports = {
+  getPassKey: getPassKey,
   encryptCard: encryptCard,
   decryptCard: decryptCard,
   deactivateCard: deactivateCard,
