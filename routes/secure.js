@@ -138,7 +138,7 @@ router.get('/:uid/recombine/:target', async function(req, res, next) {
   let who = await model.getCard(req.params.target);
   res.render('recombine', {
     done: false,
-	who: who,
+    who: who,
   });
 });
 router.post('/:uid/recombine/:target', async function(req, res, next) {
