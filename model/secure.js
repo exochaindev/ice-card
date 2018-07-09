@@ -368,14 +368,10 @@ function canAddSecure(card) {
   return card.secureExpires > Date.now();
 }
 function revokeSecure(card) {
-  // Don't allow security to be revoke (=data deleted) by just anyone
-  if (!card.secure/* || Some nebulous idea of "authenticated" (TODO) */)
-  {
-    card.secureExpires = 0;
-    delete card.secure;
-    delete card.encrypted;
-    model.updateCard(card);
-  }
+  card.secureExpires = 0;
+  delete card.secure;
+  delete card.encrypted;
+  model.updateCard(card);
 }
 // Get all contacts of a card that have enabled security with a password
 async function getSecuredContacts(contacts) {
