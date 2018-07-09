@@ -1,9 +1,7 @@
 'use strict';
 
 const app = require('../app.js')
-const idGen = require('human-readable-ids').hri;
-// TODO: I installed gfycat-style-urls
-// I might prefer that one, actually
+const idGen = require('gfycat-style-urls');
 const fabric = require('./fabric.js');
 const secure = require('./secure.js');
 const email = require('../routes/email.js');
@@ -331,7 +329,7 @@ function getReferredUrl(id, type, absolute = false, incProt = false) {
 
 // Generate a unique ID to be used for a contact / card (card ID == contact.you ID)
 function getId() {
-  return idGen.random();
+  return sanitizeId(idGen.generateCombination(2, "-"));
 }
 // In the moment, punctuation is hard to describe, make room for errors
 function sanitizeId(id) {
