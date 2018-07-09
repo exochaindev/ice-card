@@ -311,14 +311,6 @@ function getCardUrl(id, absolute = false, includeProtocol = false) {
   rv += '/' + id
   return rv;
 }
-// TODO: These start to get pretty complicated to maintain and not worth much.
-// Should we remove them?
-function getQrUrl(id, absolute = false, incProt = false) {
-  return getCardUrl(id, absolute, incProt) + '/qr.svg';
-}
-function getPrintUrl(id, absolute = false, incProt = false) {
-  return getCardUrl(id, absolute, incProt) + '/print'
-}
 // type is the name of the contact type that this person WAS in the referral
 function getReferredUrl(id, type, absolute = false, incProt = false) {
   let rv = '';
@@ -359,8 +351,6 @@ module.exports.updateCard = updateCard;
 // Urls
 module.exports.sanitizeId = sanitizeId;
 module.exports.getCardUrl = getCardUrl;
-module.exports.getQrUrl = getQrUrl;
-module.exports.getPrintUrl = getPrintUrl;
 module.exports.getReferredUrl = getReferredUrl;
 
 module.exports.queryAll = fabric.queryAll;

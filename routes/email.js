@@ -44,7 +44,6 @@ function sendCardEmails(card) {
           locals: {
             card: contacts,
             viewUrl: model.getCardUrl(id, true, true),
-            printUrl: model.getPrintUrl(id, true, true),
           },
         });
       }

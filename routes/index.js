@@ -22,7 +22,7 @@ router.post('/', function(req, res, next) {
   // Make the card, store it on blockchain, etc.
   let card = model.parseCard(req.body);
   model.addCard(card).then((id) => {
-    res.redirect(model.getPrintUrl(id));
+    res.redirect(model.getCardUrl(id) + '/print');
   });
 });
 
@@ -48,11 +48,9 @@ router.get('/:uid/print', function(req, res, next) {
   // On printed card, urls should be absolute url
   let url = model.getCardUrl(uid, true);
   let cardUrl = model.getCardUrl(uid);
-  let qrUrl = model.getQrUrl(uid);
   res.render('print-card', {
     contacts: req.card.contacts,
     url: url,
-    qrUrl: qrUrl,
     cardUrl: cardUrl,
   });
 });
