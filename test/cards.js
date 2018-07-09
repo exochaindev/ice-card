@@ -60,6 +60,25 @@ describe('model', function() {
       assert.ok(success);
       revert();
     });
+    it('should not add keys to contacts without data', async function() {
+      // Don't wait to actually add a card
+      let revert = model.__set__({
+        'fabric.addCard': async (card) => {},
+        'email.sendCardEmails': () => {}
+      });
+      // Deep copy and run
+      let emptyContact = {
+        email: '',
+        address: '',
+        name: '',
+        phone: '',
+      };
+      let emptyCard = JSON.parse(JSON.stringify(testCard));
+      emptyCard.contacts.primary = emptyContact;
+      await model.addCard(emptyCard);
+      assert.ok(!emptyCard.contacts.primary.key);
+      revert();
+    })
   });
   describe('#getCard()', function() {
     // TODO: How do you check for these things?

@@ -65,6 +65,15 @@ function referrerCard(id, type) {
   });
 }
 
+function isEmptyContact(contact) {
+  return (
+    !contact.name &&
+    !contact.email &&
+    !contact.address &&
+    !contact.phone
+  );
+}
+
 // A card needs a lot of properties that don't come from input
 // EG: When it can be no longer secured, and new keys for new entries
 // Initialize a card IN-PLACE, return nothing
@@ -86,8 +95,7 @@ function initCard(card) {
   // or by this right here: a new random key.
   // This allows us to connect records, even if they haven't signed up yet.
   for (let entry in card.contacts) {
-    // TODO: Only add key if not empty
-    if (!card.contacts[entry].key) {
+    if (!card.contacts[entry].key && !isEmptyContact(card.contacts[entry])) {
       card.contacts[entry].key = getId();
     }
   }
