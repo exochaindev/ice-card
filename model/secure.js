@@ -344,7 +344,7 @@ function decryptAsymmetricMessage(key, pem) {
 }
 
 // Given a card and a password, split that password amongst all secured contacts
-// Resolves promise to null when done
+// Resolves promise to number of escrowed when done but cards not updated
 async function escrow(card, password, needed) {
   let passKey = getPassKey(password, card.salt).key;
   let id = card.contacts.you.key;
@@ -360,6 +360,7 @@ async function escrow(card, password, needed) {
     addAsymmetric(into, into.asymmetric.escrow, id, share);
     model.updateCard(into);
   }
+  return intoCards.length;
 }
 
 // Check if the ability to add a password to a card has expired

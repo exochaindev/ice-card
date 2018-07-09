@@ -103,10 +103,10 @@ router.get('/:uid/complete-escrow', function(req, res, next) {
     cannotAdd: false,
   });
 });
-router.post('/:uid/complete-escrow', function(req, res, next) {
-  // TODO: Get escrow count from web
-  model.secure.escrow(req.card, req.body.password, cfg.escrowNeeded);
-  res.flash('success', 'Your card has been successfully escrowed!');
+router.post('/:uid/complete-escrow', async function(req, res, next) {
+  let count = await model.secure.escrow(req.card, req.body.password, cfg.escrowNeeded);
+  let countStr = count.toString();
+  res.flash('success', 'Your card has been successfully escrowed into ' + countStr + ' friends.');
   res.redirect(model.getCardUrl(req.params.uid) + '/print');
 });
 router.get('/:uid/revoke-escrow', function(req, res, next) {

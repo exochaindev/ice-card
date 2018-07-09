@@ -41,10 +41,11 @@ describe('model', function() {
   });
   var id;
   describe('#addCard()', function() {
-    it('should return an id', async function() {
+    it('should return a correct id', async function() {
       this.timeout(5000);
       id = await model.addCard(testCard, false);
-      assert.ok(id);
+      assert.equal(id, testCard.contacts.you.key);
+      assert.equal(id, 'testing-monkey-15');
     });
     it('should send emails', async function() {
       var success = false;
