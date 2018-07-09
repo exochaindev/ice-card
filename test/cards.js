@@ -81,7 +81,6 @@ describe('model', function() {
     })
   });
   describe('#getCard()', function() {
-    // TODO: How do you check for these things?
     it('should be able to get added cards (may be `addCard` error!)', async function() {
       let card = await model.getCard(id);
       assert.deepEqual(testCard, card);

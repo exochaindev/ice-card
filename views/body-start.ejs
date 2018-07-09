@@ -1,0 +1,10 @@
+<%# Render flash messages and anything else we might need at the start of the body %>
+
+<ul class="flash">
+<% for (let key in flash) {
+  for (let message of flash[key]) {
+%>
+  <li<% if (key == "error") { %> class="error"<%}%>><%- message %></li>
+<% }
+} %>
+</ul>

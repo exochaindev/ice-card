@@ -7,6 +7,17 @@ a {
   color: #00B7FF;
 }
 
+
+.flash li {
+  list-style-type: none;
+  padding: 10px;
+  color: #009b48;
+  font-size: 1.3em;
+}
+.error {
+  color: #ff466e !important;
+}
+
 .card, .wrap {
   max-width: 500px;
 }

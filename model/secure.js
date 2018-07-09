@@ -369,6 +369,7 @@ function canAddSecure(card) {
 }
 function revokeSecure(card) {
   card.secureExpires = 0;
+  delete card.asymmetric;
   delete card.secure;
   delete card.encrypted;
   model.updateCard(card);

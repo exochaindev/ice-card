@@ -37,5 +37,13 @@ router.get('/referring/:uid', async function(req, res, next) {
   res.json(rv);
 })
 
+router.get('/flash', function(req, res, next) {
+  res.flash('status', 'Just a status message');
+  res.flash('error', 'A big-old error!!!');
+  req.session.save(() => {
+    res.render('make-card', {existing: {}});
+  });
+})
+
 module.exports = router;
 

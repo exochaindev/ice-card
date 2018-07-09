@@ -33,8 +33,8 @@ router.get('/:uid', function(req, res, next) {
   let canAddSecure = model.secure.canAddSecure(req.card);
   let url = model.getCardUrl(req.uid);
   if (req.card.deactivated) {
-    res.send('You deactivated this card. <a href="/' + req.uid + '/activate">Activate</a>.') // TODO
-    next();
+    res.flash('error', 'This card has been deactivated. The card owner must activate it again.');
+    res.redirect(model.getCardUrl(req.uid) + '/activate');
   }
   res.render('view-card', {
     card: req.card,
