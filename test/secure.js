@@ -14,7 +14,7 @@ describe('secure', function() {
     });
   });
   describe('#makeSecure', function() {
-    this.timeout(15000);
+    this.timeout(17000);
     this.slow(10000);
     it('should create a recoverable keypair', async function() {
       try {
@@ -48,28 +48,6 @@ describe('secure', function() {
       assert.ok(testCard.asymmetric.escrow[testCard.contacts.you.key]);
       revert();
     })
-  });
-  describe('#encryptAsymmetric', function() {
-    it('should succeed on small keys', () => {
-      let key = secure.__get__('getKeyPairFromPems')(testCard.publicKey).publicKey;
-      let encrypted = secure.__get__('encryptAsymmetric')(key, 'short');
-      console.log(encrypted);
-      assert.ok(encrypted);
-    });
-    it('should fail on large keys', () => {
-      let longKey = `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-        aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-        aaaaaaaa`; // 128 bits
-      let success = true;
-      try {
-        let encrypted = secure.__get__('encryptAsymmetric')('short');
-        let success = false;
-      }
-      catch (err) {
-        success = true;
-      }
-      assert.ok(success);
-    });
   });
   var encrypted;
   describe('#encryptCard', function() {

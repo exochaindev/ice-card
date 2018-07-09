@@ -22,7 +22,8 @@ const keyLength = 128;
 
 // Derive an AES key from a password. When AES needs a "password", it really
 // needs this passKey
-// Optional parameter salt re-uses a known salt
+// Optional parameter salt re-uses a known salt.
+//   May be a Buffer or a base64-encoded String
 // Returns:
 // {
 //   key: key,
@@ -30,11 +31,14 @@ const keyLength = 128;
 // }
 function getPassKey(password, salt) {
   // PBKDF2 recommends a 16 byte salt
-  if (typeof salt == "undefined") {
+  if (typeof salt == 'undefined') {
     salt = crypto.randomBytes(16);
   }
+  // Pass either a Buffer or a base64 string
+  if (typeof salt == 'string') {
+    salt = Buffer.from(salt, "base64");
+  }
   const key = crypto.pbkdf2Sync(password, salt, 100000, keyLength, 'sha512');
-  //
   return {
     key: key,
     salt: salt,
@@ -76,7 +80,7 @@ async function makeSecure(card, password) {
   card['privateKeyEncrypted'] = keypair.privateKeyEncrypted;
 
   // Password: store salt and nothing else
-  card['salt'] = passKeyAndSalt.salt;
+  card['salt'] = passKeyAndSalt.salt.toString("base64");
 
   card['canEscrow'] = true;
 
@@ -163,7 +167,7 @@ function encryptCard(card, password) {
   card.secure = encrypt(plaintextJSON, passKey);
   let keypair = getKeyPairFromPems(card.publicKey, card.privateKeyEncrypted, password);
   changeLeaves(card.asymmetric, function(val) {
-    return encryptAsymmetric(keypair.publicKey, val);
+    return encryptAsymmetricMessage(keypair.publicKey, val);
   });
   card.encrypted = true;
   return card; // Modifies in place as always, but return it for convenience
@@ -184,7 +188,7 @@ function decryptCard(card, password) {
   }
   let keypair = getKeyPairFromPems(card.publicKey, card.privateKeyEncrypted, password);
   changeLeaves(card.asymmetric, function(val) {
-    return decryptAsymmetric(keypair.privateKey, val);
+    return decryptAsymmetricMessage(keypair.privateKey, val);
   });
   card.encrypted = false;
   return card; // Modifies in place as always, but return it for convenience
@@ -201,7 +205,7 @@ function combine(cards, who) {
     // No longer needed
     delete card.escrowRecombining[id];
   }
-  return secrets.hex2str(secrets.combine(pieces));
+  return Buffer.from(secrets.combine(pieces), "hex");
 }
 // Check if we have the necessary keys to combine
 async function checkCombineCompleted(card, who) {
@@ -306,19 +310,12 @@ function getKeyPairFromPems(publicPem, privateEncryptedPem, password) {
   return rv;
 }
 
-// Convenience function for using asym crypto
-function encryptAsymmetric(key, value) {
-  return forge.util.encode64(key.encrypt(value));
-}
-function decryptAsymmetric(key, value) {
-  return key.decrypt(forge.util.decode64(value));
-}
 // Add a leaf to the card.asymmetric object
 // Encrypted iff card is encrypted
 function addAsymmetric(card, object, key, value) {
   if (card.encrypted) {
     let keypair = getKeyPairFromPems(card.publicKey);
-    let encrypted = encryptAsymmetric(keypair.publicKey, value);
+    let encrypted = encryptAsymmetricMessage(keypair.publicKey, value);
     object[key] = encrypted;
   }
   else {
@@ -343,7 +340,7 @@ function encryptAsymmetricMessage(key, plaintext) {
 function decryptAsymmetricMessage(key, pem) {
   let p7 = forge.pkcs7.messageFromPem(pem);
   p7.decrypt(p7.recipients[0], key);
-  return p7.content;
+  return p7.content.data;
 }
 
 // Given a card and a password, split that password amongst all secured contacts
@@ -352,7 +349,7 @@ async function escrow(card, password, needed) {
   let passKey = getPassKey(password, card.salt).key;
   let id = card.contacts.you.key;
   let intoCards = await getSecuredContacts(card.contacts);
-  let passwordHex = secrets.str2hex(passKey);
+  let passwordHex = passKey.toString("hex");
   let shares = secrets.share(passwordHex, intoCards.length, needed);
   for (let i in intoCards) {
     let into = intoCards[i];
