@@ -1,0 +1,52 @@
+<%# PARTIAL
+Needs:
+ - a javascript array defined earlier in your document called `names`
+   it should include the names of each contact field that this will render
+Can use:
+ - `existing` which is an object with any existing data to be filled in
+Renders:
+ - A bunch of <input>s with the right stuff, and headings, but no <form> tag so
+   you can add stuff
+%>
+<%
+  function capitalize(word) {
+    return word[0].toUpperCase() + word.substr(1);
+  }
+%>
+<%
+  names.forEach(function(name) {
+%>
+  <h2><%- capitalize(name) %></h2>
+  <%
+    var fields = [
+      "name",
+      "email",
+      "phone",
+      "address",
+      "key",
+    ];
+    fields.forEach((field) => {
+      var value = "";
+      if (existing && existing[name] && existing[name][field]) {
+        value = existing[name][field];
+      }
+  %>
+    <input
+      <% if (field == "key") { %>
+        type="hidden"
+      <% } else { %>
+        type="text"
+      <% } %>
+      placeholder="<%- capitalize(field) %>"
+      name="<%- name %>-<%- field %>"
+      class="field <%- name %>" <%# Used for clearGroup and more %>
+      value="<%= value %>"
+    />
+  <% }); %>
+  <a
+    href="javascript:void(0);"
+    onclick="fillGroup('<%- name %>');"
+    class="clear-group <%- name %>">
+    Clear
+  </a>
+<% }); %>

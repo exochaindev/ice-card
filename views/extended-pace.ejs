@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <% title = 'Fill in your extended PACE' %>
+    <% include head.ejs %>
+    <script src='/javascripts/contacts-ajax.js'></script>
+  </head>
+  <body>
+    <% include body-start %>
+    <h1><%- title %></h1>
+    <div class="card">
+      <form action="update-private" method="post">
+        <%
+          // YPACE
+          var names = [
+              "physician",
+              "attorney",
+              "cmp",
+              "estate",
+          ];
+        %>
+        <% include contacts-fields %>
+        <hr />
+        <h2>Other Data</h2>
+        <pre><%- JSON.stringify(data); %></pre>
+        <hr />
+        <input type="hidden" name="password" value="<%- password %>" />
+        <input type="submit" value="Update private info" />
+      </form>
+    </div>
+  </body>
+</html>
+

@@ -15,6 +15,7 @@ router.all('/:uid/revoke-secure', c.needsCard);
 router.all('/:uid/complete-escrow', c.needsCard);
 router.all('/:uid/revoke-escrow', c.needsCard);
 router.post('/:uid/private', c.needsCard);
+router.post('/:uid/update-private', c.needsCard);
 router.post('/:uid/recombine/:target', c.needsCard);
 
 router.all('/:uid/make-secure', function(req, res, next) {
@@ -133,10 +134,25 @@ router.get('/:uid/private', function(req, res, next) {
 router.post('/:uid/private', function(req, res, next) {
   model.secure.decryptCard(req.card, req.body.password);
   let all = Object.assign(req.card.secure, req.card.asymmetric);
-  res.render('unstructured', {
-    title: 'All private data for ' + req.card.contacts.you.name,
-    data: all,
+  let contacts = all.contacts;
+  let data = all;
+  delete data.contacts;
+  res.render('extended-pace', {
+    existing: contacts,
+    data: data,
+    password: req.body.password,
   });
+});
+router.post('/:uid/update-private', async function(req, res, next) {
+  let password = req.body.password;
+  delete req.body.password; // Don't commit to db, but everything else tho
+  model.secure.decryptCard(req.card, password);
+  let data = model.parseCard(req.body);
+  req.card.secure = Object.assign(req.card.secure, data);
+  model.secure.encryptCard(req.card, password);
+  await model.updateCard(req.card);
+  res.flash('success', 'Data successfully updated');
+  res.redirect(307, model.getCardUrl(req.uid) + '/private');
 });
 
 router.get('/:uid/recombine/:target', async function(req, res, next) {

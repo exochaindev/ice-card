@@ -36,6 +36,11 @@ input[type="checkbox"], .card input[type="checkbox"] {
   width: initial;
 }
 
+.search-result {
+  background-color: #c2dae4;
+  padding: 1em;
+}
+
 .card input {
   box-sizing: border-box;
   /* Doesn't support calc */

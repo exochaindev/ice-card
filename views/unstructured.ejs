@@ -1,27 +1,32 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <% include head.ejs %>
-  </head>
-  <body>
-    <h1><%- title %></h1>
-    <%
-      function nest(o) {
-        %><ul><%
-        for (var key in o) {
-          %><li><%- key %><br /><%
-          var val = o[key];
-          if (typeof(val) == typeof({})) {
-            nest(val);
-          }
-          else {
-            %><%- val %><%
-          }
-          %></li><%
-        }
-        %></ul><%
+<%
+  function key_ul(key, end) {
+    if (!end) {
+      %><ul><%- key %><br /><%
+    } else {
+      %></ul><%
+    }
+  }
+  function val_ul(val, end) {
+    if (!end) {
+      %><li><%- val %><%
+    } else {
+      %></li><%
+    }
+  }
+  function nest(o, key_f=key_ul, val_f=val_ul) {
+    for (var key in o) {
+      key_f(key);
+      var val = o[key];
+      if (typeof(val) == typeof({})) {
+        nest(val);
       }
-      nest(data);
-    %>
-  </body>
-</html>
+      else {
+        val_f(val);
+        val_f(null, true) // End
+      }
+      key_f(null, true); // End
+    }
+  }
+  nest(data);
+%>
+
