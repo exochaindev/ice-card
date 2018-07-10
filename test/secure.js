@@ -7,8 +7,14 @@ const secure = rewire('../model/secure.js');
 var testCard = require('../util/test-card.json');
 
 describe('secure', function() {
+  describe('#getPassKey', function() {
+    it('should get a properly sized key', () => {
+      let key = secure.getPassKey('password');
+      assert.equal(key.key.length, 128);
+    });
+  });
   describe('#makeSecure', function() {
-    this.timeout(15000);
+    this.timeout(17000);
     this.slow(10000);
     it('should create a recoverable keypair', async function() {
       try {
@@ -27,7 +33,7 @@ describe('secure', function() {
       await secure.makeSecure(testCard, 'password');
       // Should not escrow with insufficient friends
       assert.ok(!testCard.asymmetric.escrow);
-      secure.__set__('getSecuredContacts', function() {
+      let revert = secure.__set__('getSecuredContacts', function() {
         let count = 3;
         let rv = [];
         // let contact = {};
@@ -37,7 +43,10 @@ describe('secure', function() {
         return rv;
       });
       await secure.makeSecure(testCard, 'password');
+      assert.ok(testCard.asymmetric)
+      assert.ok(testCard.asymmetric.escrow)
       assert.ok(testCard.asymmetric.escrow[testCard.contacts.you.key]);
+      revert();
     })
   });
   var encrypted;

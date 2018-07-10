@@ -1,9 +1,7 @@
 'use strict';
 
 const app = require('../app.js')
-const idGen = require('human-readable-ids').hri;
-// TODO: I installed gfycat-style-urls
-// I might prefer that one, actually
+const idGen = require('gfycat-style-urls');
 const fabric = require('./fabric.js');
 const secure = require('./secure.js');
 const email = require('../routes/email.js');
@@ -67,6 +65,15 @@ function referrerCard(id, type) {
   });
 }
 
+function isEmptyContact(contact) {
+  return (
+    !contact.name &&
+    !contact.email &&
+    !contact.address &&
+    !contact.phone
+  );
+}
+
 // A card needs a lot of properties that don't come from input
 // EG: When it can be no longer secured, and new keys for new entries
 // Initialize a card IN-PLACE, return nothing
@@ -88,8 +95,7 @@ function initCard(card) {
   // or by this right here: a new random key.
   // This allows us to connect records, even if they haven't signed up yet.
   for (let entry in card.contacts) {
-    // TODO: Only add key if not empty
-    if (!card.contacts[entry].key) {
+    if (!card.contacts[entry].key && !isEmptyContact(card.contacts[entry])) {
       card.contacts[entry].key = getId();
     }
   }
@@ -305,14 +311,6 @@ function getCardUrl(id, absolute = false, includeProtocol = false) {
   rv += '/' + id
   return rv;
 }
-// TODO: These start to get pretty complicated to maintain and not worth much.
-// Should we remove them?
-function getQrUrl(id, absolute = false, incProt = false) {
-  return getCardUrl(id, absolute, incProt) + '/qr.svg';
-}
-function getPrintUrl(id, absolute = false, incProt = false) {
-  return getCardUrl(id, absolute, incProt) + '/print'
-}
 // type is the name of the contact type that this person WAS in the referral
 function getReferredUrl(id, type, absolute = false, incProt = false) {
   let rv = '';
@@ -331,7 +329,7 @@ function getReferredUrl(id, type, absolute = false, incProt = false) {
 
 // Generate a unique ID to be used for a contact / card (card ID == contact.you ID)
 function getId() {
-  return idGen.random();
+  return sanitizeId(idGen.generateCombination(2, "-"));
 }
 // In the moment, punctuation is hard to describe, make room for errors
 function sanitizeId(id) {
@@ -353,8 +351,6 @@ module.exports.updateCard = updateCard;
 // Urls
 module.exports.sanitizeId = sanitizeId;
 module.exports.getCardUrl = getCardUrl;
-module.exports.getQrUrl = getQrUrl;
-module.exports.getPrintUrl = getPrintUrl;
 module.exports.getReferredUrl = getReferredUrl;
 
 module.exports.queryAll = fabric.queryAll;

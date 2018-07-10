@@ -41,14 +41,47 @@ describe('model', function() {
   });
   var id;
   describe('#addCard()', function() {
-    it('should return an id', async function() {
+    it('should return a correct id', async function() {
       this.timeout(5000);
       id = await model.addCard(testCard, false);
-      assert.ok(id);
+      assert.equal(id, testCard.contacts.you.key);
+      assert.equal(id, 'testing-monkey-15');
     });
+    it('should send emails', async function() {
+      var success = false;
+      // Don't wait to actually add a card
+      let revert = model.__set__({
+        'fabric.addCard': async () => {},
+        'email.sendCardEmails': () => {
+          success = true;
+        }
+      });
+      // Deep copy and run
+      await model.addCard(JSON.parse(JSON.stringify(testCard)));
+      assert.ok(success);
+      revert();
+    });
+    it('should not add keys to contacts without data', async function() {
+      // Don't wait to actually add a card
+      let revert = model.__set__({
+        'fabric.addCard': async (card) => {},
+        'email.sendCardEmails': () => {}
+      });
+      // Deep copy and run
+      let emptyContact = {
+        email: '',
+        address: '',
+        name: '',
+        phone: '',
+      };
+      let emptyCard = JSON.parse(JSON.stringify(testCard));
+      emptyCard.contacts.primary = emptyContact;
+      await model.addCard(emptyCard);
+      assert.ok(!emptyCard.contacts.primary.key);
+      revert();
+    })
   });
   describe('#getCard()', function() {
-    // TODO: How do you check for these things?
     it('should be able to get added cards (may be `addCard` error!)', async function() {
       let card = await model.getCard(id);
       assert.deepEqual(testCard, card);

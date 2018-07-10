@@ -42,7 +42,9 @@ router.get('/:uid/make-secure', function(req, res, next) {
 });
 router.post('/:uid/make-secure', function(req, res, next) {
   model.secure.makeSecure(req.card, req.body.password);
-  res.send('Successfully secured card.') // TODO: Actually flash or render a page
+  res.flash('status', 'Successfully secured card.');
+  // Use print page so we don't invalidate card
+  res.redirect(model.getCardUrl(req.params.uid) + '/print');
 });
 router.get('/:uid/revoke-secure', function(req, res, next) {
   if (req.card.secure) {
@@ -56,13 +58,15 @@ router.get('/:uid/revoke-secure', function(req, res, next) {
   }
   else {
     model.secure.revokeSecure(req.card);
-    res.send('Secure access has been revoked');
+    res.flash('success', 'Secure access successfully revoked.');
+    res.redirect(model.getCardUrl(req.uid) + '/print');
   }
 });
 router.post('/:uid/revoke-secure', function(req, res, next) {
   if (model.secure.decryptCard(req.card, req.params.password)) {
     model.secure.revokeSecure(req.card);
-    res.send('Secure access has been revoked.');
+    res.flash('success', 'All secure data deleted and secure access revoked.');
+    res.redirect(model.getCardUrl(req.uid) + '/print');
   }
   else {
     res.status(403).send('Incorrect password');
@@ -70,11 +74,15 @@ router.post('/:uid/revoke-secure', function(req, res, next) {
 });
 
 router.get('/:uid/activate', function(req, res, next) {
-  res.render('activate', { });
+  res.render('password', {
+    button: 'Activate card',
+    text: 'Your card has been read, now you must re-activate it.',
+  });
 });
 router.post('/:uid/activate', function(req, res, next) {
   model.secure.activateCard(req.card, req.body.password);
-  res.send('Card re-activated. No need to print a new one.') // TODO: Flash
+  res.flash('success', 'Card re-activated. No need to print a new one.');
+  res.redirect(model.getCardUrl(req.params.uid) + '/print');
 });
 
 router.all('/:uid/complete-escrow', function(req, res, next) {
@@ -95,11 +103,11 @@ router.get('/:uid/complete-escrow', function(req, res, next) {
     cannotAdd: false,
   });
 });
-router.post('/:uid/complete-escrow', function(req, res, next) {
-  // TODO: Get escrow count from web
-  model.secure.escrow(req.card, req.body.password, cfg.escrowNeeded);
-  // TODO: template
-  res.send('Well done!')
+router.post('/:uid/complete-escrow', async function(req, res, next) {
+  let count = await model.secure.escrow(req.card, req.body.password, cfg.escrowNeeded);
+  let countStr = count.toString();
+  res.flash('success', 'Your card has been successfully escrowed into ' + countStr + ' friends.');
+  res.redirect(model.getCardUrl(req.params.uid) + '/print');
 });
 router.get('/:uid/revoke-escrow', function(req, res, next) {
   let cannotAdd = !req.card.canEscrow;
@@ -112,12 +120,15 @@ router.get('/:uid/revoke-escrow', function(req, res, next) {
 router.post('/:uid/revoke-escrow', async function(req, res, next) {
   req.card.canEscrow = false;
   await model.updateCard(req.card);
-  // TODO: template
-  res.send('Revoked successfully')
+  res.flash('success', 'Card security revoked successfully!');
+  res.redirect(model.getCardUrl(req.params.uid) + '/print');
 });
 
 router.get('/:uid/private', function(req, res, next) {
-  res.render('private', {});
+  res.render('password', {
+    button: 'Unlock',
+    text: 'Access your private data.',
+  });
 })
 router.post('/:uid/private', function(req, res, next) {
   model.secure.decryptCard(req.card, req.body.password);
@@ -132,7 +143,7 @@ router.get('/:uid/recombine/:target', async function(req, res, next) {
   let who = await model.getCard(req.params.target);
   res.render('recombine', {
     done: false,
-	who: who,
+    who: who,
   });
 });
 router.post('/:uid/recombine/:target', async function(req, res, next) {

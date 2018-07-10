@@ -3,5 +3,8 @@
     "host": "smtp.gmail.com",
     "user": "youremail@email.com",
     "password": "yourpassword"
+  },
+  "session": {
+    "cookiePassword": "insecure-password"
   }
 }

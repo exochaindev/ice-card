@@ -1,6 +1,6 @@
 'use strict';
 
-const model = require('./index.js');
+const model = require('../model/index.js');
 const cfg = require('../config.json');
 const secureCfg = require('../secure-config.json');
 
@@ -44,7 +44,6 @@ function sendCardEmails(card) {
           locals: {
             card: contacts,
             viewUrl: model.getCardUrl(id, true, true),
-            printUrl: model.getPrintUrl(id, true, true),
           },
         });
       }

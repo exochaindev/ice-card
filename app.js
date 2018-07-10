@@ -6,11 +6,15 @@ var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
+var session = require('express-session');
 var logger = require('morgan');
+var flash = require('express-flash-2');
 
 var indexRouter = require('./routes/index');
 
 var model = require('./model/index.js');
+
+var secureCfg = require('./secure-config.json')
 
 var app = express();
 
@@ -21,8 +25,13 @@ app.set('view engine', 'ejs');
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
+app.use(cookieParser(secureCfg.session.cookiePassword));
+app.use(session({
+	secret: secureCfg.session.cookiePassword,
+	resave: true,
+	saveUninitialized:true}));
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(flash());
 
 app.use('/', require('./routes/common.js').router);
 app.use('/', require('./routes/json.js'));
