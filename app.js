@@ -1,7 +1,5 @@
 'use strict';
 
-var debug = true;
-
 var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
@@ -14,6 +12,7 @@ var indexRouter = require('./routes/index');
 
 var model = require('./model/index.js');
 
+var cfg = require('./config.json')
 var secureCfg = require('./secure-config.json')
 
 var app = express();
@@ -37,7 +36,7 @@ app.use('/', require('./routes/common.js').router);
 app.use('/', require('./routes/json.js'));
 app.use('/', indexRouter);
 app.use('/', require('./routes/secure.js'));
-if (debug) {
+if (cfg.debug) {
   var debugRouter = require('./routes/debug');
   app.use('/debug', debugRouter);
 }

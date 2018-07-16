@@ -2,5 +2,6 @@
   "canonicalDomain": "localhost:3000",
   "secureExpiresHours": "24",
   "emailPreviews": true,
-  "escrowNeeded": 3
+  "escrowNeeded": 3,
+  "debug": true
 }
