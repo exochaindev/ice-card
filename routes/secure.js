@@ -152,6 +152,8 @@ router.post('/:uid/update-private', async function(req, res, next) {
   model.secure.encryptCard(req.card, password);
   await model.updateCard(req.card);
   res.flash('success', 'Data successfully updated');
+  // Password is still in body so we should be ok
+  // Hence we use 307 to continue a post request
   res.redirect(307, model.getCardUrl(req.uid) + '/private');
 });
 
