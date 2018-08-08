@@ -95,7 +95,7 @@ function initCard(card) {
   // or by this right here: a new random key.
   // This allows us to connect records, even if they haven't signed up yet.
   for (let entry in card.contacts) {
-    if (!card.contacts[entry].key && !isEmptyContact(card.contacts[entry])) {
+    if (!card.contacts[entry].key && (!isEmptyContact(card.contacts[entry]) || entry == 'you')) {
       card.contacts[entry].key = getId();
     }
   }

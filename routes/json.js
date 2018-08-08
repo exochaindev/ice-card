@@ -33,6 +33,18 @@ router.post('/:uid/private.json', function(req, res, next) {
   res.json(all);
 });
 
+router.post('/create.json', function(req, res, next) {
+  let card = model.parseCard(req.body);
+  // Fix addCard failing to find key
+  card.contacts.you = card.contacts.you || {};
+  model.addCard(card).then((id) => {
+    res.json({id});
+  }, (err) => {
+    console.error(err);
+    throw err;
+  });
+})
+
 router.use(async function(err, req, res, next) {
   let rv = {error: err.toString()};
   res.json(rv);
