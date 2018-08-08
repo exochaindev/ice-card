@@ -14,6 +14,7 @@ router.post('/closest-person.json', async function(req, res, next) {
 
 router.get('/:uid.json', c.needsCard);
 router.post('/:uid/private.json', c.needsCard);
+router.post('/:uid/update.json', c.needsCard);
 
 router.get('/:uid.json', function(req, res, next) {
   model.onScan(req.card, req);
@@ -44,6 +45,12 @@ router.post('/create.json', function(req, res, next) {
     throw err;
   });
 })
+router.post('/:uid/update.json', function(req, res, next) {
+  let newCard = model.parseCard(req.body);
+  model.updateCard(newCard).then(() => {
+    res.json({'success':true});
+  });
+});
 
 router.use(async function(err, req, res, next) {
   let rv = {error: err.toString()};
